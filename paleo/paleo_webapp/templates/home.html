@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block scripts %}
+<script src="{{ STATIC_URL }}js/maps.js"></script>
+{% endblock %}
 {% block content %}
-Hello!
+<div id="map_canvas" style="width:500px; height:500px"></div>
 {% endblock %}

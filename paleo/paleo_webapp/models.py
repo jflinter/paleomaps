@@ -13,8 +13,9 @@ class Place(models.Model):
   def __unicode__(self):
     return self.name
   def save(self, *args, **kwargs):
-    shouldSave = False
+    shouldSave = True
     if not self.latitude or not self.longitude:
+      shouldSave = False
       json_response = requests.get('http://maps.googleapis.com/maps/api/geocode/json?address='+self.location+'&sensor=false')
       if json_response.status_code == 200:
         r = json.loads(json_response.text)
@@ -37,7 +38,7 @@ class Place(models.Model):
 class MenuItem(models.Model):
   place = models.ForeignKey(Place)
   name = models.CharField(max_length=200)
-  description = models.TextField()
+  description = models.TextField(blank=True)
   def __unicode__(self):
     return self.name
 

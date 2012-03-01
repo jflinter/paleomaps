@@ -1,7 +1,10 @@
-# Django settings for paleo project.
+from os.path import abspath, dirname, basename, join
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+ROOT_PATH = abspath(dirname(__file__))
+PROJECT_NAME = basename(ROOT_PATH)
 
 ADMINS = (
     ('Jack Flintermann', 'jflinter11@gmail.com'),
@@ -103,6 +106,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'paleo.urls'
 
 TEMPLATE_DIRS = (
+    join(ROOT_PATH, 'templates')
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
