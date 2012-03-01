@@ -1,3 +1,14 @@
 body {
   padding-top: 60px;
 }
+img {
+  max-width: none;
+}
+
+#map_canvas {
+  height:500px;
+}
+
+.info_not_start {
+  display:none;
+}

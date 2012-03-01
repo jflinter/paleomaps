@@ -1,4 +1,19 @@
 $(document).ready(function() {
+  var spinner = new Spinner({
+    lines: 12, // The number of lines to draw
+    length: 7, // The length of each line
+    width: 4, // The line thickness
+    radius: 10, // The radius of the inner circle
+    color: '#000', // #rgb or #rrggbb
+    speed: 1, // Rounds per second
+    trail: 60, // Afterglow percentage
+    shadow: false, // Whether to render a shadow
+    hwaccel: false, // Whether to use hardware acceleration
+    className: 'spinner', // The CSS class to assign to the spinner
+    zIndex: 2e9, // The z-index (defaults to 2000000000)
+    top: 40, // Top position relative to parent in px
+    left: 100 // Left position relative to parent in px
+  });
   var myOptions = {
       center: new google.maps.LatLng( 34.038058, -118.468677),
       zoom: 13,
@@ -20,13 +35,39 @@ $(document).ready(function() {
   } else {
     error('not supported');
   }
-  function addMarkerFromJson(item) {
-    var latLng = new google.maps.LatLng(item.fields.latitude, item.fields.longitude);
-    new google.maps.Marker({position: latLng, map: map, title:item.fields.name, animation:google.maps.Animation.DROP});
+  function addMarkerFromJson(place) {
+    var latLng = new google.maps.LatLng(place.fields.latitude, place.fields.longitude);
+    var marker = new google.maps.Marker({position: latLng, map: map, title:place.fields.name});
+    google.maps.event.addListener(marker, 'click', function() {
+      $(".info_not_start").hide();
+      $(".info_start").hide();
+      $("#info_menu_items dl").empty();
+      $("#info_title h3").text(place.fields.name);
+      $("#info_title").addClass('willShow');
+      $("#info_address p").text(place.fields.location);
+      $("#info_address").addClass('willShow');
+      $("#info_menu_items").addClass('willShow');
+      spinner.spin(document.getElementById('info_menu_items'));
+      if (place.fields.description != '') {
+        $("#info_restaurant_notes h3").text('Restaurant Notes:');
+        $("#info_restaurant_notes p").text(place.fields.description);
+        $("#info_restaurant_notes").addClass('willShow');
+      }
+      $(".willShow").show();
+      $(".willShow").removeClass("willShow");
+      $.get("/menu_for_place", { 'pk': place.pk }, function(data) {
+        spinner.stop();
+        if (data.length < 1) {
+          $("#info_menu_items dl").append("<dt>No menu items available</dt>")
+        }
+        data.map(function(menu_item) {
+          $("#info_menu_items dl").append("<dt>"+menu_item.fields.name+"</dt><dd>"+menu_item.fields.description+"</dd>");
+        })
+      }, "json");
+    })
   }
   $.get("/get_all_places",
      function(data){
-       console.log(data);
        data.map(addMarkerFromJson)
      }, "json");
   

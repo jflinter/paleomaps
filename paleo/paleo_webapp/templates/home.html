@@ -3,5 +3,18 @@
 <script src="{{ STATIC_URL }}js/maps.js"></script>
 {% endblock %}
 {% block content %}
-<div id="map_canvas" style="width:500px; height:500px"></div>
+<div class='row'>
+<div id="map_canvas" class='span7'></div>
+<div id="info_panel" class='span5'>
+	<h2 id="info_start_title" class='info_start'>Welcome to Paleo Maps!</h2>
+	<div id="info_start_description" class='info_start'><p>
+		Paleo maps is a fun, easy way for followers of the <a href="http://en.wikipedia.org/wiki/Paleolithic_diet" target='_blank'>Paleo diet</a> to find places to eat.<br><br>
+		Click on any of the map markers for reviews, information, menu items, and more for paleo-friendly restaurants near you.<br><br>
+		This site is a work in progress, with more content and functionality being added every day. If you have questions, feature suggestions, or bug reports, feel free to email them to <a href='mailto:info@paleomaps.com'>info@paleomaps.com</a>.</p></div>
+	<div id="info_title" class='info_not_start'><h3></h3></div>
+	<div id="info_address" class='info_not_start'><p></p></div>
+	<div id="info_menu_items" class='info_not_start'><h3>Paleo-friendly menu items:</h3><dl></dl></div>
+	<div id="info_restaurant_notes" class='info_not_start'><h3>Restaurant notes:</h3><p></p></div>
+</div>
+</div>
 {% endblock %}
