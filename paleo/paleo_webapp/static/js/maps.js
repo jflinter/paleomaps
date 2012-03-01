@@ -1,18 +1,18 @@
 $(document).ready(function() {
   var spinner = new Spinner({
-    lines: 12, // The number of lines to draw
-    length: 7, // The length of each line
-    width: 4, // The line thickness
-    radius: 10, // The radius of the inner circle
+    lines: 10, // The number of lines to draw
+    length: 3, // The length of each line
+    width: 2, // The line thickness
+    radius: 4, // The radius of the inner circle
     color: '#000', // #rgb or #rrggbb
-    speed: 1, // Rounds per second
+    speed: 3, // Rounds per second
     trail: 60, // Afterglow percentage
     shadow: false, // Whether to render a shadow
     hwaccel: false, // Whether to use hardware acceleration
     className: 'spinner', // The CSS class to assign to the spinner
     zIndex: 2e9, // The z-index (defaults to 2000000000)
-    top: 40, // Top position relative to parent in px
-    left: 100 // Left position relative to parent in px
+    top: 6, // Top position relative to parent in px
+    left: 236 // Left position relative to parent in px
   });
   var myOptions = {
       center: new google.maps.LatLng( 34.038058, -118.468677),
