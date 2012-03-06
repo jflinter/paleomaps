@@ -27,5 +27,5 @@ class ModelLocation(TestCase):
     place.name = "Whole Foods"
     place.location = '1240 Yale St, Santa Monica, CA 90404'
     place.save()
-    self.assertEqual(place.yelp_id, 'hdQJrF3Fw_KrEaDywC3tyg')
+    self.assertEqual(place.yelp_id, 'whole-foods-santa-monica')
     self.assertEqual(len(Place.objects.all()), 1)

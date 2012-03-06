@@ -12,3 +12,46 @@ img {
 .info_not_start {
   display:none;
 }
+
+#info_rating p {
+  display:inline;
+  padding-left:5px;
+}
+
+.info_not_start p {
+  margin:0px;
+}
+
+dl {
+  margin-top:0px;
+}
+
+#info_menu_items {
+  margin-top:10px;
+}
+#add_place_button {
+  margin-bottom:8px;
+}
+.modal {
+  z-index:995;
+}
+.modal-backdrop {
+  z-index:990;
+}
+#add_place_form h4 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+#modal_spinner {
+  height: 20px;
+  width: 10px;
+  display: inline-block;
+  float: right;
+  padding-left: 10px;
+}
+#menu_items_spinner {
+  z-index: 500;
+  position: relative;
+  left: 243px;
+  top: -13px;
+}

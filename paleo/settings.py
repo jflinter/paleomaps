@@ -23,6 +23,12 @@ DATABASES = {
     }
 }
 
+
+YELP_CONSUMER_KEY = 'ZEpWbbj-1S-KGUebyAc-9Q'
+YELP_CONSUMER_SECRET = 'Ksi3aMmNKjemvoCA3vTbcX0Ji4U'
+YELP_TOKEN = 'Qx_DxSp6EB0uew33eN-aZEKGQyOWUUqT'
+YELP_TOKEN_SECRET = '_rNsubphTKXqAeRzOJkJpUKiqEM'
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
