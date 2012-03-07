@@ -6,16 +6,14 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from models import Place
+from models import Place, MenuItem
+from views import add_place
+from django.utils import unittest
+from django.http import (QueryDict, HttpResponse, SimpleCookie, BadHeaderError,
+        parse_cookie, HttpRequest)
+from django.test.client import Client
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
-
-class ModelLocation(TestCase):
+'''class ModelLocation(unittest.TestCase):
   def test_bad_google_location(self):
     place = Place()
     place.name = "test place"
@@ -29,3 +27,16 @@ class ModelLocation(TestCase):
     place.save()
     self.assertEqual(place.yelp_id, 'whole-foods-santa-monica')
     self.assertEqual(len(Place.objects.all()), 1)
+  def add_new_place(self):
+    request.POST = "{'description': [''], 'name': ['Chipotle Mexican Grill'], 'location': ['1074 Broxton Avenue, Los Angeles, CA 90024, United States']}"
+    add_place(request)
+    print "testing"
+    self.assertEqual(len(Place.objects.all()), 1)
+'''
+class ViewTestCase(unittest.TestCase):
+    def test_add_new_place(self):
+      """testing adding stuff"""
+      client = Client()
+      response = client.post('/add_place', {u'description': '', u'name': u'Chipotle Mexican Grill', u'menu_items': [{u'name': u'ipod', u'description': u'fancy'}], u'location': u'1074 Broxton Avenue, Los Angeles, CA 90024, United States'})
+      self.assertEqual(len(Place.objects.all()), 1)
+      self.assertEqual(len(MenuItem.objects.all()), 1)

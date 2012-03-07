@@ -43,6 +43,7 @@ class Place(models.Model):
   def refresh_yelp_info(self):
     if (self.latitude and self.longitude):
       yelp_response = yelp_request('search', {'ll' : str(self.latitude)+","+str(self.longitude), 'limit' : 1, 'term' : self.name})
+      print yelp_response.text
       if yelp_response.status_code == 200:
         y = json.loads(yelp_response.text)
         if y['total'] > 0:
@@ -60,30 +61,33 @@ class Place(models.Model):
       self.yelp_review_count = y['review_count']
       self.yelp_url = y['url']
       self.yelp_image_rating_url = y['rating_img_url_small']
-      location = y['location']
-      self.location = ', '.join([', '.join(location['address']), location['city'], location['state_code'], location['postal_code']])
-      self.latitude = y['location']['coordinate']['latitude']
-      self.longitude = y['location']['coordinate']['longitude']
+      #location = y['location']
+      #self.location = ', '.join([', '.join(location['address']), location['city'], location['state_code'], location['postal_code']])
+      #self.latitude = y['location']['coordinate']['latitude']
+      #self.longitude = y['location']['coordinate']['longitude']
     return True
     
   def refresh_google_info(self):
     success = True
     if not self.latitude or not self.longitude:
       success = False
-      json_response = requests.get('http://maps.googleapis.com/maps/api/geocode/json?address='+self.location+'&sensor=false')
-      if json_response.status_code == 200:
-        r = json.loads(json_response.text)
-        if r['status'] == 'OK':
-          self.location = str.join(r['results'][0]['formatted_address'], ', ')
-          self.latitude = r['results'][0]['geometry']['location']['lat']
-          self.longitude = r['results'][0]['geometry']['location']['lng']
-          success = True
+      if self.location:
+        json_response = requests.get('http://maps.googleapis.com/maps/api/geocode/json?address='+self.location+'&sensor=false')
+        if json_response.status_code == 200:
+          print json_response
+          r = json.loads(json_response.text)
+          if r['status'] == 'OK':
+            self.location = (r['results'][0]['formatted_address'])
+            self.latitude = r['results'][0]['geometry']['location']['lat']
+            self.longitude = r['results'][0]['geometry']['location']['lng']
+            success = True
     return success
       
   def save(self, *args, **kwargs):
     if self.refresh_google_info() and self.refresh_yelp_info():
       super(Place, self).save(*args, **kwargs) # Call the "real" save() method.
-    
+      return True
+    else: return False
 
 class MenuItem(models.Model):
   place = models.ForeignKey(Place)

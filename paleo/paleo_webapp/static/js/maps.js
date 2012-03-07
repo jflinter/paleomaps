@@ -107,8 +107,8 @@ $(document).ready(function() {
         currentPlace = place;
         $("#info_menu_items dl").empty();
         $("#info_title h2 span").text(place.fields.name);
-        $("#info_title .yelp_link").attr('href', place.fields.yelp_url);
-        $("#info_rating img").attr('src', place.fields.yelp_image_rating_url);
+        $(".yelp_link").attr('href', place.fields.yelp_url);
+        $("#yelp_rating_img").attr('src', place.fields.yelp_image_rating_url);
         $("#info_rating p").text(place.fields.yelp_review_count + ' ratings');
         $("#info_address p").text(place.fields.location);
         $("#info_phone_number").text(place.fields.yelp_phone_number);
@@ -116,6 +116,10 @@ $(document).ready(function() {
         if (place.fields.description != '') {
             $("#info_restaurant_notes h3").text('Restaurant Notes:');
             $("#info_restaurant_notes p").text(place.fields.description);
+        }
+        else {
+          $("#info_restaurant_notes h3").text('');
+          $("#info_restaurant_notes p").text('');
         }
         $.get("/menu_for_place", {
             'pk': place.pk
@@ -166,6 +170,12 @@ $(document).ready(function() {
     google.maps.event.addListener(autocomplete, 'place_changed',
     function() {
         var place = autocomplete.getPlace();
+        if (place) {
+          $('#add_place_submit').removeClass('disabled');
+        }
+        else {
+          $('#add_place_submit').addClass('disabled');
+        }
     });
 
     $(document).on('keydown', '.new_menu_field',
@@ -206,6 +216,11 @@ $(document).ready(function() {
             };
             console.log(postData);
             spinner.spin(document.getElementById('modal_spinner'));
+            $.post("/add_place", JSON.stringify(postData), function() {
+              console.log('add place returned');
+              spinner.stop();
+              location.reload();
+            }, 'json');
         }
         else {
             console.log('nooo');

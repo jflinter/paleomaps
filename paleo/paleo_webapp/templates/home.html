@@ -13,11 +13,17 @@
 <div id="info_panel" class='span4'>
 	<div id="place_info">
 		<div id="info_title"><h2><a class='yelp_link' href="#" target="_blank"><span /></a></h2><a class="hide_place" href="#"><i class='icon-chevron-left'></i> Back to list</a></div>
-		<div id="info_rating"><img src='' /><p /></div>
+		<div id="info_rating">
+				<img id='yelp_rating_img' src='' />
+				<a href='#' class='yelp_link'>
+				<p></p>
+				<img id='yelp_brand' src='http://media1.ak.yelpcdn.com/static/20101216159295510/img/map/miniMapLogo.png' />
+			</a>
+		</div>
 		<div id="info_address"><p /></div>
 		<div id="info_phone_number"><p /></div>
-		<div id="info_menu_items"><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl /></div>
 		<div id="info_restaurant_notes"><h3>Restaurant notes:</h3><p /></div>
+		<div id="info_menu_items"><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl /></div>
 	</div>
 	<div id="place_list">
 	<h3>Paleo-friendly Places Near You:</h3>
@@ -49,7 +55,7 @@
   </div>
   <div class="modal-footer">
 	<div id="modal_spinner"></div>
-    <a href="#" id="add_place_submit" class="btn btn-success btn-primary">Save this place</a>
+    <a href="#" id="add_place_submit" class="btn btn-success btn-primary disabled">Save this place</a>
     <a href="#" data-dismiss="modal" class="btn">Cancel</a>
   </div>
 </div>
