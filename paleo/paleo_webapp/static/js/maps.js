@@ -64,7 +64,81 @@ $(document).ready(function() {
     } else {
         error('not supported');
     }
+    var width = $("#info_panel").width();
+    $("#place_info").css('marginLeft', width).show();
+    $(".hide_place").click(hidePlaceInfo);
+
+    var currentPlace = null;
+    var placeInfoVisible = false;
+
+    function flashPlaceInfo(place) {
+        var element = $('#place_info');
+        if (currentPlace == place) return;
+        if (placeInfoVisible) {
+            hidePlaceInfo(function() {
+                populatePlaceInfo(place);
+                showPlaceInfo();
+            });
+        }
+        else {
+            populatePlaceInfo(place);
+            showPlaceInfo();
+        }
+    }
+    function hidePlaceInfo(callback) {
+        var element = $('#place_info');
+        if (!placeInfoVisible) return;
+        currentPlace = null;
+        placeInfoVisible = false;
+        element.animate({
+            marginLeft: parseInt(element.outerWidth())
+        },
+        callback);
+    }
+    function showPlaceInfo() {
+        var element = $('#place_info');
+        if (placeInfoVisible) return;
+        placeInfoVisible = true;
+        element.animate({
+            marginLeft: 0
+        });
+    }
+    function populatePlaceInfo(place) {
+        currentPlace = place;
+        $("#info_menu_items dl").empty();
+        $("#info_title h2 span").text(place.fields.name);
+        $("#info_title .yelp_link").attr('href', place.fields.yelp_url);
+        $("#info_rating img").attr('src', place.fields.yelp_image_rating_url);
+        $("#info_rating p").text(place.fields.yelp_review_count + ' ratings');
+        $("#info_address p").text(place.fields.location);
+        $("#info_phone_number").text(place.fields.yelp_phone_number);
+        spinner.spin(document.getElementById('menu_items_spinner'));
+        if (place.fields.description != '') {
+            $("#info_restaurant_notes h3").text('Restaurant Notes:');
+            $("#info_restaurant_notes p").text(place.fields.description);
+        }
+        $.get("/menu_for_place", {
+            'pk': place.pk
+        },
+        function(data) {
+            spinner.stop();
+            if (data.length < 1) {
+                $("#info_menu_items dl").append("<dt>No menu items available</dt>")
+            }
+            data.map(function(menu_item) {
+                $("#info_menu_items dl").append("<dt>" + menu_item.fields.name + "</dt><dd>" + menu_item.fields.description + "</dd>");
+            })
+        },
+        "json");
+    }
+
     function addMarkerFromJson(place) {
+        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>");
+        listEntry.click(function() {
+            flashPlaceInfo(place)
+        });
+        $("#info_panel ul").append(listEntry);
+
         var latLng = new google.maps.LatLng(place.fields.latitude, place.fields.longitude);
         var marker = new google.maps.Marker({
             position: latLng,
@@ -75,45 +149,8 @@ $(document).ready(function() {
         });
         google.maps.event.addListener(marker, 'click',
         function() {
-            $(".info_not_start").hide();
-            $(".info_start").hide();
-            $("#info_menu_items dl").empty();
-            $("#info_title h2 span").text(place.fields.name);
-            $("#info_title a").attr('href', place.fields.yelp_url);
-            $("#info_title").addClass('willShow');
-            $("#info_rating img").attr('src', place.fields.yelp_image_rating_url);
-            $("#info_rating p").text(place.fields.yelp_review_count + ' ratings')
-            $("#info_rating").addClass('willShow');
-            $("#info_address p").text(place.fields.location);
-            $("#info_address").addClass('willShow');
-            $("#info_phone_number").text(place.fields.yelp_phone_number);
-            $("#info_phone_number").addClass('willShow');
-            $("#info_menu_items").addClass('willShow');
-            spinner.spin(document.getElementById('menu_items_spinner'));
-            if (place.fields.description != '') {
-                $("#info_restaurant_notes h3").text('Restaurant Notes:');
-                $("#info_restaurant_notes p").text(place.fields.description);
-                $("#info_restaurant_notes").addClass('willShow');
-            }
-            $(".willShow").show();
-            $(".willShow").removeClass("willShow");
-            $.get("", {},
-            function(data) {},
-            "json");
-            $.get("/menu_for_place", {
-                'pk': place.pk
-            },
-            function(data) {
-                spinner.stop();
-                if (data.length < 1) {
-                    $("#info_menu_items dl").append("<dt>No menu items available</dt>")
-                }
-                data.map(function(menu_item) {
-                    $("#info_menu_items dl").append("<dt>" + menu_item.fields.name + "</dt><dd>" + menu_item.fields.description + "</dd>");
-                })
-            },
-            "json");
-        })
+            flashPlaceInfo(place)
+        });
     }
 
     $.get("/get_all_places",
@@ -121,49 +158,61 @@ $(document).ready(function() {
         data.map(addMarkerFromJson)
     },
     "json");
-    var autocomplete_options = {types: ['establishment']};
+    var autocomplete_options = {
+        types: ['establishment']
+    };
     var autocomplete = new google.maps.places.Autocomplete(document.getElementById('add_place_input'), autocomplete_options);
     autocomplete.bindTo('bounds', map);
-    google.maps.event.addListener(autocomplete, 'place_changed', function() {
+    google.maps.event.addListener(autocomplete, 'place_changed',
+    function() {
         var place = autocomplete.getPlace();
-      });
+    });
 
-    $(document).on('keydown', '.new_menu_field', function() {
-      var fieldsEmpty = true;
-      $(".new_menu_field").each(function(){
-        if (this.value != '') fieldsEmpty = false;
-      });
-      if (!fieldsEmpty) {
-      console.log("blah");
-        $(".new_menu_field").removeClass("new_menu_field");
-        $(".add_menu").append('<input class="new_menu_field menu_item" type="text" placeholder="Another menu item...">');
-        $(".add_menu").append(' <input class="new_menu_field menu_item_description" type="text" placeholder="Comments/Notes">');
-      }
-      }
-    );
-    
-    $("#add_place_submit").click(function(event) {
-      event.preventDefault();
-      var place = autocomplete.getPlace();
-      if (place) {
-        var menuItems = [];
-        $('.menu_item:not(.new_menu_field)').each(function(index) {
-          var name = this.value;
-          if (name != '') {
-            var menuItem = {'name' : name};
-            var description = $('.menu_item_description:not(.new_menu_field)')[index].value;
-            menuItem['description'] = description;
-            menuItems.push(menuItem);
-          }
+    $(document).on('keydown', '.new_menu_field',
+    function() {
+        var fieldsEmpty = true;
+        $(".new_menu_field").each(function() {
+            if (this.value != '') fieldsEmpty = false;
         });
-        var postData = {'name' : place.name, 'location' : place.formatted_address, 'description' : $('#add_place_description').val(), 'menu_items' : menuItems};
-        console.log(postData);
-        spinner.spin(document.getElementById('modal_spinner'));
-      }
-      else {
-        console.log('nooo');
-      } 
-      
-    })
-    
- });
+        if (!fieldsEmpty) {
+            $(".new_menu_field").removeClass("new_menu_field");
+            $(".add_menu").append('<input class="new_menu_field menu_item" type="text" placeholder="Another menu item...">');
+            $(".add_menu").append(' <input class="new_menu_field menu_item_description" type="text" placeholder="Comments/Notes">');
+        }
+    }
+    );
+
+    $("#add_place_submit").click(function(event) {
+        event.preventDefault();
+        var place = autocomplete.getPlace();
+        if (place) {
+            var menuItems = [];
+            $('.menu_item:not(.new_menu_field)').each(function(index) {
+                var name = this.value;
+                if (name != '') {
+                    var menuItem = {
+                        'name': name
+                    };
+                    var description = $('.menu_item_description:not(.new_menu_field)')[index].value;
+                    menuItem['description'] = description;
+                    menuItems.push(menuItem);
+                }
+            });
+            var postData = {
+                'name': place.name,
+                'location': place.formatted_address,
+                'description': $('#add_place_description').val(),
+                'menu_items': menuItems
+            };
+            console.log(postData);
+            spinner.spin(document.getElementById('modal_spinner'));
+        }
+        else {
+            console.log('nooo');
+        }
+    });
+    $('a[data-dismiss="modal"]').click(function() {
+        $(':input', '#add_place_form').val('').removeAttr('checked');
+    });
+
+});

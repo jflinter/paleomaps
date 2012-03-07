@@ -10,20 +10,22 @@
 <div class='row'>
 <div id="map_canvas" class="span7"</div>
 </div>
-<div id="info_panel" class='span5'>
-	<h2 id="info_start_title" class='info_start'>Welcome to Paleo Maps!</h2>
-	<div id="info_start_description" class='info_start'><p>
-		Paleo maps is a fun, easy way for followers of the <a href="http://en.wikipedia.org/wiki/Paleolithic_diet" target='_blank'>Paleo diet</a> to find places to eat.<br><br>
-		Click on any of the map markers for reviews, information, menu items, and more for paleo-friendly restaurants near you.<br><br>
-		This site is a work in progress, with more content and functionality being added every day. If you have questions, feature suggestions, or bug reports, feel free to email them to <a href='mailto:info@paleomaps.com'>info@paleomaps.com</a>.</p></div>
-	<div id="info_title" class='info_not_start'><h2><a href="#" target="_blank"><span /></a></h2></div>
-	<div id="info_rating" class='info_not_start'><img src='' /><p /></div>
-	<div id="info_address" class='info_not_start'><p /></div>
-	<div id="info_phone_number" class='info_not_start'><p /></div>
-	<div id="info_menu_items" class='info_not_start'><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl /></div>
-	<div id="info_restaurant_notes" class='info_not_start'><h3>Restaurant notes:</h3><p /></div>
+<div id="info_panel" class='span4'>
+	<div id="place_info">
+		<div id="info_title"><h2><a class='yelp_link' href="#" target="_blank"><span /></a></h2><a class="hide_place" href="#"><i class='icon-chevron-left'></i> Back to list</a></div>
+		<div id="info_rating"><img src='' /><p /></div>
+		<div id="info_address"><p /></div>
+		<div id="info_phone_number"><p /></div>
+		<div id="info_menu_items"><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl /></div>
+		<div id="info_restaurant_notes"><h3>Restaurant notes:</h3><p /></div>
+	</div>
+	<div id="place_list">
+	<h3>Paleo-friendly Places Near You:</h3>
+	<ul class="nav nav-tabs nav-stacked"/>
+	</div>
 </div>
 </div>
+
 <div class="modal hide fade span8" id="addPlaceModal">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
@@ -48,7 +50,9 @@
   <div class="modal-footer">
 	<div id="modal_spinner"></div>
     <a href="#" id="add_place_submit" class="btn btn-success btn-primary">Save this place</a>
-    <a href="#" data-dismiss="modal" class="btn btn-danger">Cancel</a>
+    <a href="#" data-dismiss="modal" class="btn">Cancel</a>
   </div>
 </div>
+
+
 {% endblock %}

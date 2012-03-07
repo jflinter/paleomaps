@@ -8,9 +8,22 @@ img {
 #map_canvas {
   height:500px;
 }
-
-.info_not_start {
+#info_panel {
+  position:relative;
+  overflow:hidden;
+  height:500px;
+}
+#place_list{
+  height:inherit;
+  overflow-y:auto;
+}
+#place_info {
   display:none;
+  position:absolute;
+  width:300px;
+  background-color:#ffffff;
+  height:inherit;
+  overflow-y:auto;
 }
 
 #info_rating p {
@@ -32,11 +45,8 @@ dl {
 #add_place_button {
   margin-bottom:8px;
 }
-.modal {
-  z-index:995;
-}
-.modal-backdrop {
-  z-index:990;
+.pac-container[style] {
+  z-index:1050 !important;
 }
 #add_place_form h4 {
   margin-top: 10px;
