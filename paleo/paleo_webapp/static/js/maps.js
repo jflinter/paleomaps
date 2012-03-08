@@ -258,6 +258,37 @@ $(document).ready(function() {
     var autocomplete_options = {
         types: ['establishment']
     };
+    
+    var alert_success = $("#alert_success");
+    alert_success.css('top', -1*alert_success.outerHeight());
+    function showSuccessAlert(placeName) {
+      alert_success.find("span").text(placeName);
+      alert_success.animate({
+          top: 0
+      }, function() {
+        setTimeout(function() {
+          alert_success.animate({
+              top: -1*alert_success.outerHeight()
+          });
+        }, 2000);
+      });
+    }
+    var alert_error = $("#alert_error");
+    alert_error.css('top', -1*alert_error.outerHeight());
+    function showErrorAlert(placeName) {
+      alert_error.find("span").text(placeName);
+      alert_error.animate({
+          top: 0
+      }, function() {
+        setTimeout(function() {
+          alert_error.animate({
+              top: -1*alert_error.outerHeight()
+          });
+        }, 2000);
+      });
+    }
+    
+    
     var autocomplete = new google.maps.places.Autocomplete(document.getElementById('add_place_input'), autocomplete_options);
     autocomplete.bindTo('bounds', map);
     google.maps.event.addListener(autocomplete, 'place_changed',
@@ -310,20 +341,29 @@ $(document).ready(function() {
             console.log(postData);
             var spinner = getSpinner();
             spinner.spin(document.getElementById('modal_spinner'));
-            $.post("/add_place", JSON.stringify(postData),
-            function(place) {
-              if (!('error' in place)) {
-                alert('this worked');
-              addPlace(place, true, false);
-              //TODO: show success message
-            }
-            else {
-              //TODO: show error message
-            }
+            $.ajax({
+              url: "/add_place",
+              type: "post",
+              data: JSON.stringify(postData),
+              dataType: "json",
+              error: function(data) {
+                showErrorAlert(place.name);
+              },
+              success: function() {
+                if (!('error' in place)) {
+                  alert('this worked');
+                addPlace(place, true, false);
+                showSuccessAlert(place.name);
+              }
+              else {
+                showErrorAlert(place.name);
+              }
+              },
+              complete: function() {
                 spinner.stop();
                 $('#addPlaceModal').modal('hide');
-            },
-            'json');
+              }
+            });
         }
         else {
             console.log('nooo');

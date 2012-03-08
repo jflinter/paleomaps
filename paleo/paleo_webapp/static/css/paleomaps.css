@@ -99,3 +99,9 @@ dl {
   top:0px;
   z-index:9999;
 }
+#alert_error {
+  position:fixed;
+  width:810px;
+  top:0px;
+  z-index:9999;
+}
