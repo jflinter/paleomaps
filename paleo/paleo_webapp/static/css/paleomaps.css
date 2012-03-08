@@ -13,8 +13,15 @@ img {
   overflow:hidden;
   height:500px;
 }
-#place_list{
+#place_list_holder {
   height:inherit;
+}
+#place_list_holder .btn-success{
+  width:270px;
+  position:absolute; bottom:0;
+}
+#place_list{
+  height:400px;
   overflow-y:auto;
 }
 #place_info {
@@ -38,12 +45,19 @@ img {
 dl {
   margin-top:0px;
 }
-
+.place_info_window {
+  width:20px;
+  height:15px;
+  overflow:hidden;
+}
 #info_menu_items {
   margin-top:10px;
 }
 #add_place_button {
   margin-bottom:8px;
+}
+#add_place_description {
+  height:60px;
 }
 .pac-container[style] {
   z-index:1050 !important;

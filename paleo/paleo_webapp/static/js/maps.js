@@ -1,10 +1,10 @@
 $(document).ready(function() {
     var locationPinColor = "8109E3";
-    var locationPinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + locationPinColor);
+    var locationPinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_icon&chld=home|" + locationPinColor);
     var placePinColor = "FE7569";
-    var placePinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + placePinColor, new google.maps.Size(21, 34),
-    new google.maps.Point(0, 0),
-    new google.maps.Point(10, 34));
+    var placePinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + placePinColor);
+    var highlightedPinColor = "5BB75B";
+    var highlightedPinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + highlightedPinColor);
     var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow", new google.maps.Size(40, 37),
     new google.maps.Point(0, 0),
     new google.maps.Point(12, 35));
@@ -50,7 +50,8 @@ $(document).ready(function() {
             map: map,
             title: 'Your Location',
             icon: locationPinImage,
-            shadow: pinShadow
+            shadow: pinShadow,
+            zIndex: -5
         });
     }
 
@@ -70,6 +71,7 @@ $(document).ready(function() {
 
     var currentPlace = null;
     var placeInfoVisible = false;
+    var currentPin = null;
 
     function flashPlaceInfo(place) {
         var element = $('#place_info');
@@ -86,6 +88,7 @@ $(document).ready(function() {
         }
     }
     function hidePlaceInfo(callback) {
+      if (currentPin != null) currentPin.setIcon(placePinImage);
         var element = $('#place_info');
         if (!placeInfoVisible) return;
         currentPlace = null;
@@ -135,13 +138,12 @@ $(document).ready(function() {
         },
         "json");
     }
-
+    function highlightPin(marker) {
+      if (currentPin != null) currentPin.setIcon(placePinImage);
+      currentPin = marker;
+      currentPin.setIcon(highlightedPinImage);
+    }
     function addMarkerFromJson(place) {
-        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>");
-        listEntry.click(function() {
-            flashPlaceInfo(place)
-        });
-        $("#info_panel ul").append(listEntry);
 
         var latLng = new google.maps.LatLng(place.fields.latitude, place.fields.longitude);
         var marker = new google.maps.Marker({
@@ -151,10 +153,24 @@ $(document).ready(function() {
             icon: placePinImage,
             shadow: pinShadow
         });
+        var infowindow = new google.maps.InfoWindow({
+            content: '<div class="place_info_window">'+place.fields.name+'</div>',
+            maxWidth: 20
+        });
         google.maps.event.addListener(marker, 'click',
         function() {
-            flashPlaceInfo(place)
+            flashPlaceInfo(place);
+            highlightPin(marker);
+            map.panTo(marker.getPosition());
         });
+        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>");
+        listEntry.click(function() {
+            flashPlaceInfo(place);
+            highlightPin(marker);
+            map.panTo(marker.getPosition());
+        });
+        $("#info_panel ul").append(listEntry);
+        
     }
 
     $.get("/get_all_places",
