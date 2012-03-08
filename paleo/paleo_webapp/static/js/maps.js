@@ -122,7 +122,6 @@ $(document).ready(function() {
             'business_id': place.fields.yelp_id
         },
         function(data) {
-            console.log(data);
             var fake_results = {
                 'display_phone': '8476871127',
                 'rating': '3',
@@ -130,7 +129,7 @@ $(document).ready(function() {
                 'url': 'www.google.com',
                 'rating_img_url_small': 'http://media1.ak.yelpcdn.com/static/20070816/i/ico/stars/stars_small_4.png'
             };
-            setTimeout(function() {
+            /*setTimeout(function() {
                 var data = fake_results;
                 if (currentPlace == place) {
                     $(".yelp_link").attr('href', data.url);
@@ -143,16 +142,25 @@ $(document).ready(function() {
                 }
 
             },
-            500);
-            /*$.ajax({
+            500);*/
+            $.ajax({
             'url': data.yelp_url,
             'cache': true,
             'dataType': 'jsonp',
             'jsonpCallback': 'cb',
             'success': function(yelp_data, textStats, XMLHttpRequest) {
-              console.log(yelp_data);
+              if (currentPlace == place) {
+                console.log(yelp_data);
+                  $(".yelp_link").attr('href', yelp_data.url);
+                  $("#yelp_rating_img").attr('src', yelp_data.rating_img_url_small);
+                  $("#info_rating p").text(yelp_data.review_count + ' ratings');
+                  $("#info_phone_number").text(yelp_data.display_phone);
+                  $("#info_phone_number").show();
+                  $("#loading_yelp_results").hide();
+                  $("#info_rating").show();
+              }
             }
-          });*/
+          });
 
         },
         'json');
