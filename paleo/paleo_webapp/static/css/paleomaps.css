@@ -24,6 +24,15 @@ img {
   height:400px;
   overflow-y:auto;
 }
+.yelp_brand {
+  vertical-align:text-bottom;
+}
+#yelp_spinner {
+  position:absolute;
+  height:25px;
+  width:50px;
+  display:inline;
+}
 #place_info {
   display:none;
   position:absolute;
@@ -71,11 +80,22 @@ dl {
   width: 10px;
   display: inline-block;
   float: right;
-  padding-left: 10px;
+  margin-left: -5px;
+  padding-right: 10px;
+  vertical-align: bottom;
+  position: relative;
+  top: 4px;
 }
 #menu_items_spinner {
   z-index: 500;
   position: relative;
   left: 243px;
   top: -13px;
+}
+
+#alert_success {
+  position:fixed;
+  width:810px;
+  top:0px;
+  z-index:9999;
 }

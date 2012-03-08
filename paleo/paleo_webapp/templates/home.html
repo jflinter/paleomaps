@@ -11,12 +11,13 @@
 </div>
 <div id="info_panel" class='span4'>
 	<div id="place_info">
-		<div id="info_title"><h2><a class='yelp_link' href="#" target="_blank"><span /></a></h2><a class="hide_place" href="#"><i class='icon-chevron-left'></i> Back to list</a></div>
+		<div id="info_title"><h2><span/></h2><a class="hide_place" href="#"><i class='icon-chevron-left'></i> Back to list</a></div>
+		<div id="loading_yelp_results">Retrieving results from <img class='yelp_brand' src='http://media1.ak.yelpcdn.com/static/20101216159295510/img/map/miniMapLogo.png' /><span id="yelp_spinner"></div>
 		<div id="info_rating">
 				<img id='yelp_rating_img' src='' />
 				<a href='#' class='yelp_link' target="_blank">
 				<p></p>
-				<img id='yelp_brand' src='http://media1.ak.yelpcdn.com/static/20101216159295510/img/map/miniMapLogo.png' />
+				<img class='yelp_brand' src='http://media1.ak.yelpcdn.com/static/20101216159295510/img/map/miniMapLogo.png' />
 			</a>
 		</div>
 		<div id="info_address"><p /></div>
@@ -35,7 +36,9 @@
 	</div>
 </div>
 </div>
-
+<div class="alert alert-success" id="alert_success">
+  <strong>Thanks!</strong> You've added Mrs. Winston's Green Grocery to the map.
+</div>
 <div class="modal hide fade span8" id="addPlaceModal">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>

@@ -12,6 +12,7 @@ from django.utils import unittest
 from django.http import (QueryDict, HttpResponse, SimpleCookie, BadHeaderError,
         parse_cookie, HttpRequest)
 from django.test.client import Client
+import json
 
 '''class ModelLocation(unittest.TestCase):
   def test_bad_google_location(self):
@@ -33,10 +34,18 @@ from django.test.client import Client
     print "testing"
     self.assertEqual(len(Place.objects.all()), 1)
 '''
-class ViewTestCase(unittest.TestCase):
+'''class ViewTestCase(unittest.TestCase):
     def test_add_new_place(self):
       """testing adding stuff"""
       client = Client()
       response = client.post('/add_place', {u'description': '', u'name': u'Chipotle Mexican Grill', u'menu_items': [{u'name': u'ipod', u'description': u'fancy'}], u'location': u'1074 Broxton Avenue, Los Angeles, CA 90024, United States'})
       self.assertEqual(len(Place.objects.all()), 1)
       self.assertEqual(len(MenuItem.objects.all()), 1)
+'''
+class YelpTestCase(unittest.TestCase):
+  def test_get_yelp_url(self):
+    """testing yelp url fetching"""
+    client = Client()
+    response = client.get('/get_yelp_url', {'business_id' : 'whole-foods-santa-monica'})
+    jsonresp = json.loads(response.content)
+    self.assertTrue(jsonresp['yelp_url'] != None)

@@ -8,34 +8,37 @@ $(document).ready(function() {
     var pinShadow = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_shadow", new google.maps.Size(40, 37),
     new google.maps.Point(0, 0),
     new google.maps.Point(12, 35));
-    var spinner = new Spinner({
-        lines: 10,
-        // The number of lines to draw
-        length: 3,
-        // The length of each line
-        width: 2,
-        // The line thickness
-        radius: 4,
-        // The radius of the inner circle
-        color: '#000',
-        // #rgb or #rrggbb
-        speed: 3,
-        // Rounds per second
-        trail: 60,
-        // Afterglow percentage
-        shadow: false,
-        // Whether to render a shadow
-        hwaccel: false,
-        // Whether to use hardware acceleration
-        className: 'spinner',
-        // The CSS class to assign to the spinner
-        zIndex: 2e9,
-        // The z-index (defaults to 2000000000)
-        //top: 6,
-        // Top position relative to parent in px
-        //left: 236
-        // Left position relative to parent in px
-    });
+    function getSpinner() {
+        return new Spinner({
+            lines: 10,
+            // The number of lines to draw
+            length: 3,
+            // The length of each line
+            width: 2,
+            // The line thickness
+            radius: 4,
+            // The radius of the inner circle
+            color: '#000',
+            // #rgb or #rrggbb
+            speed: 3,
+            // Rounds per second
+            trail: 60,
+            // Afterglow percentage
+            shadow: false,
+            // Whether to render a shadow
+            hwaccel: false,
+            // Whether to use hardware acceleration
+            className: 'spinner',
+            // The CSS class to assign to the spinner
+            zIndex: 2e9,
+            // The z-index (defaults to 2000000000)
+            top: 0,
+            // Top position relative to parent in px
+            left: 8
+            // Left position relative to parent in px
+        });
+    }
+    getSpinner().spin(document.getElementById('yelp_spinner'));
     var myOptions = {
         center: new google.maps.LatLng(34.038058, -118.468677),
         zoom: 13,
@@ -88,7 +91,7 @@ $(document).ready(function() {
         }
     }
     function hidePlaceInfo(callback) {
-      if (currentPin != null) currentPin.setIcon(placePinImage);
+        if (currentPin != null) currentPin.setIcon(placePinImage);
         var element = $('#place_info');
         if (!placeInfoVisible) return;
         currentPlace = null;
@@ -108,21 +111,61 @@ $(document).ready(function() {
     }
     function populatePlaceInfo(place) {
         currentPlace = place;
+        $("#info_rating").hide();
+        $("#info_phone_number").hide();
+        $("#loading_yelp_results").show();
         $("#info_menu_items dl").empty();
         $("#info_title h2 span").text(place.fields.name);
-        $(".yelp_link").attr('href', place.fields.yelp_url);
-        $("#yelp_rating_img").attr('src', place.fields.yelp_image_rating_url);
-        $("#info_rating p").text(place.fields.yelp_review_count + ' ratings');
         $("#info_address p").text(place.fields.location);
-        $("#info_phone_number").text(place.fields.yelp_phone_number);
+        
+        $.get('/get_yelp_url', {
+            'business_id': place.fields.yelp_id
+        },
+        function(data) {
+            console.log(data);
+            var fake_results = {
+                'display_phone': '8476871127',
+                'rating': '3',
+                'review_count': '69',
+                'url': 'www.google.com',
+                'rating_img_url_small': 'http://media1.ak.yelpcdn.com/static/20070816/i/ico/stars/stars_small_4.png'
+            };
+            setTimeout(function() {
+                var data = fake_results;
+                if (currentPlace == place) {
+                    $(".yelp_link").attr('href', data.url);
+                    $("#yelp_rating_img").attr('src', data.rating_img_url_small);
+                    $("#info_rating p").text(data.review_count + ' ratings');
+                    $("#info_phone_number").text(data.display_phone);
+                    $("#info_phone_number").show();
+                    $("#loading_yelp_results").hide();
+                    $("#info_rating").show();
+                }
+
+            },
+            500);
+            /*$.ajax({
+            'url': data.yelp_url,
+            'cache': true,
+            'dataType': 'jsonp',
+            'jsonpCallback': 'cb',
+            'success': function(yelp_data, textStats, XMLHttpRequest) {
+              console.log(yelp_data);
+            }
+          });*/
+
+        },
+        'json');
+
+        var spinner = getSpinner()
         spinner.spin(document.getElementById('menu_items_spinner'));
         if (place.fields.description != '') {
             $("#info_restaurant_notes h3").text('Restaurant Notes:');
             $("#info_restaurant_notes p").text(place.fields.description);
         }
         else {
-          $("#info_restaurant_notes h3").text('');
-          $("#info_restaurant_notes p").text('');
+            $("#info_restaurant_notes h3").text('');
+            $("#info_restaurant_notes p").text('');
         }
         $.get("/menu_for_place", {
             'pk': place.pk
@@ -139,12 +182,30 @@ $(document).ready(function() {
         "json");
     }
     function highlightPin(marker) {
-      if (currentPin != null) currentPin.setIcon(placePinImage);
-      currentPin = marker;
-      currentPin.setIcon(highlightedPinImage);
+        if (currentPin != null) currentPin.setIcon(placePinImage);
+        currentPin = marker;
+        currentPin.setIcon(highlightedPinImage);
+    }
+
+    var placesWaitingList = [];
+    var placesList = [];
+
+    function addPlace(place, redraw, refresh) {
+        placesWaitingList.push(place);
+        if (redraw) {
+            renderPage(refresh);
+        }
+    }
+    var markersArray = [];
+    function deleteOverlays() {
+      if (markersArray) {
+        for (i in markersArray) {
+          markersArray[i].setMap(null);
+        }
+        markersArray.length = 0;
+      }
     }
     function addMarkerFromJson(place) {
-
         var latLng = new google.maps.LatLng(place.fields.latitude, place.fields.longitude);
         var marker = new google.maps.Marker({
             position: latLng,
@@ -153,10 +214,7 @@ $(document).ready(function() {
             icon: placePinImage,
             shadow: pinShadow
         });
-        var infowindow = new google.maps.InfoWindow({
-            content: '<div class="place_info_window">'+place.fields.name+'</div>',
-            maxWidth: 20
-        });
+        markersArray.push(marker);
         google.maps.event.addListener(marker, 'click',
         function() {
             flashPlaceInfo(place);
@@ -170,12 +228,31 @@ $(document).ready(function() {
             map.panTo(marker.getPosition());
         });
         $("#info_panel ul").append(listEntry);
-        
+
+    }
+    function renderPage(refresh) {
+        if (refresh) {
+            $("#info_panel ul").empty();
+            deleteOverlays()
+        };
+        while (placesList.length > 0) {
+            place = placesList.pop();
+            placesWaitingList.push(place);
+        }
+        while (placesWaitingList.length > 0) {
+            place = placesWaitingList.pop();
+            addMarkerFromJson(place);
+            placesList.push(place);
+        }
+        hidePlaceInfo();
     }
 
     $.get("/get_all_places",
     function(data) {
-        data.map(addMarkerFromJson)
+        data.map(function(place) {
+            addPlace(place, false, false)
+        });
+        renderPage(true);
     },
     "json");
     var autocomplete_options = {
@@ -187,10 +264,10 @@ $(document).ready(function() {
     function() {
         var place = autocomplete.getPlace();
         if (place) {
-          $('#add_place_submit').removeClass('disabled');
+            $('#add_place_submit').removeClass('disabled');
         }
         else {
-          $('#add_place_submit').addClass('disabled');
+            $('#add_place_submit').addClass('disabled');
         }
     });
 
@@ -231,12 +308,22 @@ $(document).ready(function() {
                 'menu_items': menuItems
             };
             console.log(postData);
+            var spinner = getSpinner();
             spinner.spin(document.getElementById('modal_spinner'));
-            $.post("/add_place", JSON.stringify(postData), function() {
-              console.log('add place returned');
-              spinner.stop();
-              location.reload();
-            }, 'json');
+            $.post("/add_place", JSON.stringify(postData),
+            function(place) {
+              if (!('error' in place)) {
+                alert('this worked');
+              addPlace(place, true, false);
+              //TODO: show success message
+            }
+            else {
+              //TODO: show error message
+            }
+                spinner.stop();
+                $('#addPlaceModal').modal('hide');
+            },
+            'json');
         }
         else {
             console.log('nooo');

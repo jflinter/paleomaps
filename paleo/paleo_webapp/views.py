@@ -4,6 +4,7 @@ from paleo_webapp.models import Place, MenuItem
 from django.core import serializers
 from django.template import RequestContext
 import json
+from yelp_api import get_yelp_request
 
 def home(request):
   return render_to_response('home.html', RequestContext(request))
@@ -18,18 +19,14 @@ def menu_for_place(request):
   return HttpResponse(data, mimetype="application/json")
   
 def add_place(request):
-  print request.raw_post_data
   data = request.POST
   place = Place()
   stuff = json.loads(data.lists()[0][0])
-  print stuff
   place.location = stuff['location']
   place.name = stuff['name']
   place.description = stuff['description']
-  print place.location, place.name, place.description
   menuitems = stuff['menu_items']
   success = place.save()
-  print "Saved place", success
   for item in menuitems:
     print item
     menuitem = MenuItem()
@@ -37,4 +34,14 @@ def add_place(request):
     menuitem.name = item['name']
     menuitem.description = item['description']
     menuitem.save()
-  return HttpResponse(json.dumps({'successs' : success}), mimetype="application/json")
+  if (success):
+    response_data = serializers.serialize("json", place)
+    return HttpResponse(response_data, mimetype="application/json")
+  else: return HttpResponse(json.dumps({'error' : 'place not saved'}), mimetype="application/json")
+  
+def get_yelp_request_url(request):
+  data = request.GET
+  print data
+  business_id = data.get('business_id')
+  yelp_url = get_yelp_request('business/'+business_id)
+  return HttpResponse(json.dumps({'yelp_url' : yelp_url}), mimetype="application/json")
