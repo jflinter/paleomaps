@@ -32,6 +32,7 @@ img {
   height:25px;
   width:50px;
   display:inline;
+  z-index:500;
 }
 #place_info {
   display:none;
@@ -87,10 +88,11 @@ dl {
   top: 4px;
 }
 #menu_items_spinner {
+  height: 10px;
+  width: 10px;
+  display: inline;
   z-index: 500;
-  position: relative;
-  left: 243px;
-  top: -13px;
+  position: absolute;
 }
 
 #alert_success {
@@ -104,4 +106,7 @@ dl {
   width:810px;
   top:0px;
   z-index:9999;
+}
+#why_chain {
+  color:#08C;
 }

@@ -2,12 +2,16 @@ from django.db import models
 from django.contrib import admin
 import json
 import requests
-from yelp_api import get_yelp_request
+from external_apis import get_yelp_request, google_location_search
 
+
+class Chain(models.Model):
+  name = models.CharField(max_length=200)
 
 class Place(models.Model):
   name = models.CharField(max_length=200)
   yelp_id = models.CharField(max_length=200, blank=True)
+  chain = models.ForeignKey(Chain)
   location = models.CharField(max_length=200, blank=True)
   latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
   longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
@@ -24,6 +28,7 @@ class Place(models.Model):
         if y['total'] > 0:
           self.yelp_id = y['businesses'][0]['id']
           if (self.yelp_id):
+            super(Place, self).save() # Call the "real" save() method.
             return True
     return False
     
@@ -32,25 +37,22 @@ class Place(models.Model):
     if not self.latitude or not self.longitude:
       success = False
       if self.location:
-        json_response = requests.get('http://maps.googleapis.com/maps/api/geocode/json?address='+self.location+'&sensor=false')
-        if json_response.status_code == 200:
-          print json_response
-          r = json.loads(json_response.text)
-          if r['status'] == 'OK':
-            self.location = (r['results'][0]['formatted_address'])
-            self.latitude = r['results'][0]['geometry']['location']['lat']
-            self.longitude = r['results'][0]['geometry']['location']['lng']
-            success = True
+        results = google_location_search(self.location)
+        if results:
+          self.location = results['formatted_address']
+          self.latitude = results['geometry']['location']['lat']
+          self.longitude = results['geometry']['location']['lng']
+          success = True
     return success
       
   def save(self, *args, **kwargs):
-    if self.refresh_google_info() and self.refresh_yelp_info():
+    if self.refresh_google_info():
       super(Place, self).save(*args, **kwargs) # Call the "real" save() method.
       return True
     else: return False
 
 class MenuItem(models.Model):
-  place = models.ForeignKey(Place)
+  chain = models.ForeignKey(Chain)
   name = models.CharField(max_length=200)
   description = models.TextField(blank=True)
   def __unicode__(self):
