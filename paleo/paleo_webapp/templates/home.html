@@ -21,9 +21,18 @@
 			</a>
 		</div>
 		<div id="info_address"><p /></div>
-		<div id="info_phone_number"><p /></div>
+		<div id="info_phone_number"><p>Phone number: <span>retrieving...</span></div>
 		<div id="info_restaurant_notes"><h3>Restaurant notes:</h3><p /></div>
-		<div id="info_menu_items"><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl /></div>
+		<div id="info_menu_items"><h3>Paleo-friendly menu items:</h3><p id="menu_items_spinner"></p><dl></dl>
+			<div id="append_menu_items">
+				<p>Add a new menu item:</p>
+				<form id="append_menu_item_form">
+					<input class='append_menu_item' id="append_menu_item_name" type="text" placeholder="Menu item name">
+					<input class='append_menu_item' id="append_menu_item_description" type="text" placeholder="Comments/Notes"><br />
+					<a href="#" id="append_menu_item_submit" class="btn btn-success btn-primary disabled">Add menu item</a>
+				</form>
+			</div>
+		</div>
 	</div>
 	<div id="place_list_holder">
 		<h3>Paleo-friendly Places Near You:</h3>
@@ -54,7 +63,7 @@
 	  <h4>To add a stop to the map, just start typing below!</h4>
 	  <input id="add_place_input" type="text" class="span5" placeholder="Type a paleo-friendly place here...">
 	  <label class="checkbox">
-	    <input type="checkbox"> This is a chain restaurant <span id='why_chain' rel="popover" data-content="If you check this, we'll search for places in that chain nearby and add them to the map too.">Why does this matter?</span>
+	    <input id="is_chain_checkbox" type="checkbox"> This is a chain restaurant <span id='why_chain' rel="popover" data-content="If you check this, we'll search for places in that chain nearby and add them to the map too.">Why does this matter?</span>
 	  </label>
 	<h4>Optional: add known paleo-friendly things on the menu</h4>
 	<div class="add_menu">

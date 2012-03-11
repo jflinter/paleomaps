@@ -2,7 +2,7 @@ from django.utils import simplejson as json
 import oauth2
 import urllib
 import urllib2
-from settings import YELP_CONSUMER_KEY, YELP_CONSUMER_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET
+from settings import YELP_CONSUMER_KEY, YELP_CONSUMER_SECRET, YELP_TOKEN, YELP_TOKEN_SECRET, GOOGLE_API_KEY
 import requests
 
 def get_yelp_request(path, options={'callback' : 'cb'}):
@@ -20,14 +20,35 @@ def get_yelp_request(path, options={'callback' : 'cb'}):
   oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), consumer, token)
   signed_url = oauth_request.to_url()
   return signed_url
-  
-def google_location_search(location):
+
+def google_location_search(location, num_results=1):
   encoded_params = urllib.urlencode({'address': location, 'sensor': 'false'})
-  print encoded_params
   url = 'http://maps.googleapis.com/maps/api/geocode/json?{0}'.format(encoded_params)
   json_response = requests.get(url)
   if json_response.status_code == 200:
     r = json.loads(json_response.text)
     if r['status'] == 'OK':
-      return r['results'][0]
+      return r['results'][:num_results]
+  return None
+
+def google_place_search(name, latitude, longitude, radius=30000, num_results=1):
+  encoded_params = urllib.urlencode({'location': '%s,%s'%(latitude, longitude), 'radius':radius, 'name':name, 'types': 'food', 'key': GOOGLE_API_KEY, 'sensor': 'false'})
+  url = 'https://maps.googleapis.com/maps/api/place/search/json?{0}'.format(encoded_params)
+  print url
+  json_response = requests.get(url)
+  if json_response.status_code == 200:
+    r = json.loads(json_response.text)
+    if r['status'] == 'OK':
+      results = filter(lambda g: g['name'] in name, r['results'])
+      return results[:num_results]
+  return None
+  
+def yelp_place_search(name, latitude, longitude, numResults=1):
+  params = {'ll': '%d,%d'%(latitude, longitude), 'radius_filter':30000, 'category_filter': 'food,restaurants', 'term':name}
+  url = get_yelp_request('search', params)
+  json_response = requests.get(url)
+  if json_response.status_code == 200:
+    r = json.loads(json_response.text)
+    print [y['name'] for y in r['businesses']]
+    return r['businesses'][:numResults]
   return None

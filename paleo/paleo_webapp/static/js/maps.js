@@ -123,11 +123,15 @@ $(document).ready(function() {
                   'jsonpCallback': 'cb',
                   'success': function(yelp_data, textStats, XMLHttpRequest) {
                       if (currentPlace == place) {
-                          console.log(yelp_data);
                           $(".yelp_link").attr('href', yelp_data.url);
                           $("#yelp_rating_img").attr('src', yelp_data.rating_img_url_small);
-                          $("#info_rating p").text(yelp_data.review_count + ' reviews');
-                          $("#info_phone_number").text(yelp_data.display_phone);
+                          var reviewPlural = (yelp_data.review_count == '1' ? ' review' : ' reviews');
+                          $("#info_rating p").text(yelp_data.review_count + reviewPlural);
+                          var phone = yelp_data.display_phone;
+                          if (phone.indexOf("+") == 0) {
+                            phone = phone.slice(phone.indexOf("-")+1, phone.length);
+                          }
+                          $("#info_phone_number span").text(phone);
                           $("#info_phone_number").show();
                           $("#loading_yelp_results").hide();
                           $("#info_rating").show();
@@ -153,14 +157,13 @@ $(document).ready(function() {
             $("#info_restaurant_notes h3").text('');
             $("#info_restaurant_notes p").text('');
         }
-        console.log(place);
         $.get("/menu_for_place", {
             'chain_pk': place.fields.chain
         },
         function(data) {
             spinner.stop();
             if (data.length < 1) {
-                $("#info_menu_items dl").append("<dt>No menu items available</dt>")
+                $("#info_menu_items dl").append("<dt id='no_menu_items'>No menu items available</dt>")
             }
             data.map(function(menu_item) {
                 $("#info_menu_items dl").append("<dt>" + menu_item.fields.name + "</dt><dd>" + menu_item.fields.description + "</dd>");
@@ -181,8 +184,8 @@ $(document).ready(function() {
         placesWaitingList.push(place);
         if (redraw) {
             var addedPlaces = renderPage(refresh);
-            if (addedPlaces && 'addedMarkers' in addedPlaces && addedPlaces['addedMarkers'].length == 1) {
-              console.log(addedPlaces);
+            if (addedPlaces && 'addedMarkers' in addedPlaces) {
+              index = addedPlaces['addedMarkers'].length -1;
               var marker = addedPlaces['addedMarkers'][0];
               var place = addedPlaces['addedPlaces'][0];
               selectPlace(place, marker);
@@ -340,7 +343,10 @@ $(document).ready(function() {
             var postData = {
                 'name': place.name,
                 'location': place.formatted_address,
+                'latitude': place.geometry.location.Ua,
+                'longitude': place.geometry.location.Va,
                 'description': $('#add_place_description').val(),
+                'is_chain': $('#is_chain_checkbox').is(':checked'),
                 'menu_items': JSON.stringify(menuItems)
             };
             var spinner = getSpinner();
@@ -355,12 +361,13 @@ $(document).ready(function() {
                 },
                 success: function(data) {
                     if (! ('error' in data)) {
-                      var returned_place = data.place_details;
-                      if (data.added) {
-                        console.log(data)
-                        addPlace(returned_place, true, false);
+                      var places = data.places;
+                      for (var i=places.length-1; i>0; i--) {
+                        var returned_place = places[i];
+                        addPlace(returned_place, false, false);
                       }
-                        showSuccessAlert(returned_place.fields.name);
+                      addPlace(places[0], true);
+                      showSuccessAlert(places[0].fields.name);
                     }
                     else {
                         showErrorAlert(place.name);
@@ -382,5 +389,25 @@ $(document).ready(function() {
     });
     
     $('#why_chain').popover();
+    
+    $('.append_menu_item').on('keydown', function() {
+      $('#append_menu_item_submit').removeClass('disabled')
+      });
+    $("#append_menu_item_submit").click(function() {
+      var postData = {};
+      postData['menu_item_name'] = $('#append_menu_item_name').val();
+      postData['menu_item_description'] = $('#append_menu_item_description').val();
+      postData['chain_pk'] = currentPlace.fields.chain;
+      //ajax call
+      $.ajax({
+        url: "/add_menu_item",
+        type: "post",
+        data: postData,
+        dataType: "json",
+      });
+      $("#no_menu_items").remove();
+      $(':input', '#append_menu_item_form').val('').removeAttr('checked');
+      $("#info_menu_items dl").append("<dt>" + postData['menu_item_name'] + "</dt><dd>" + postData['menu_item_description'] + "</dd>");
+    });
 
 });
