@@ -13,6 +13,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASES = {
+   '''
    'default' : {
   # mongodb://<user>:<password>@ds031587.mongolab.com:31587/paleo
       'HOST': 'ds031587.mongolab.com',
@@ -22,6 +23,16 @@ DATABASES = {
       'ENGINE' : 'django_mongodb_engine',
       'NAME' : 'paleo'
    }
+   '''
+   'default' : {
+    #mongodb://heroku_app3076898:gv7e7sqeu9vrmgue3e2uqivjrc@ds031477.mongolab.com:31477/heroku_app3076898
+       'HOST': 'ds031477.mongolab.com',
+       'PORT': 31477,
+       'USER': 'heroku_app3076898',
+       'PASSWORD': 'gv7e7sqeu9vrmgue3e2uqivjrc',
+       'ENGINE' : 'django_mongodb_engine',
+       'NAME' : 'heroku_app3076898'
+    }
 }
 
 
