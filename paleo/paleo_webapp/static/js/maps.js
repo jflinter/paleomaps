@@ -32,29 +32,7 @@ $(document).ready(function() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-    function success(position) {
-        var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        map.panTo(latLng);
-        var marker = new google.maps.Marker({
-            position: latLng,
-            map: map,
-            title: 'Your Location',
-            icon: locationPinImage,
-            shadow: pinShadow,
-            zIndex: -5
-        });
-    }
 
-    function error(msg) {
-        var latLng = new google.maps.LatLng(34.038058, -118.468677);
-        map.panTo(latLng)
-    }
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(success, error);
-    } else {
-        error('not supported');
-    }
     var width = $("#info_panel").width();
     $("#place_info").css('marginLeft', width).show();
     $(".hide_place").click(hidePlaceInfo);
@@ -105,46 +83,49 @@ $(document).ready(function() {
         $("#info_title h2 span").text(place.fields.name);
         $("#info_address p").text(place.fields.location);
         $.ajax({
-          url: '/get_yelp_url',
-          type: 'post',
-          cache: true,
-          data: {'business_pk' : place.pk, 'yelp_id' : place.fields.yelp_id},
-          dataType: 'json',
-          error: function(data) {
-            $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
-            $("#info_rating").show();
-          },
-          success: function(data) {
-            if (! ('error' in data)) {
-              $.ajax({
-                  'url': data.yelp_url,
-                  'cache': true,
-                  'dataType': 'jsonp',
-                  'jsonpCallback': 'cb',
-                  'success': function(yelp_data, textStats, XMLHttpRequest) {
-                      if (currentPlace == place) {
-                          $(".yelp_link").attr('href', yelp_data.url);
-                          $("#yelp_rating_img").attr('src', yelp_data.rating_img_url_small);
-                          var reviewPlural = (yelp_data.review_count == '1' ? ' review' : ' reviews');
-                          $("#info_rating p").text(yelp_data.review_count + reviewPlural);
-                          var phone = yelp_data.display_phone;
-                          if (phone.indexOf("+") == 0) {
-                            phone = phone.slice(phone.indexOf("-")+1, phone.length);
-                          }
-                          $("#info_phone_number span").text(phone);
-                          $("#info_phone_number").show();
-                          $("#loading_yelp_results").hide();
-                          $("#info_rating").show();
-                      }
-                  }
-              });
-            }
-            else {
-              $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
-              $("#info_rating").show();
-            }
+            url: '/get_yelp_url',
+            type: 'post',
+            cache: true,
+            data: {
+                'business_pk': place.pk,
+                'yelp_id': place.fields.yelp_id
+            },
+            dataType: 'json',
+            error: function(data) {
+                $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
+                $("#info_rating").show();
+            },
+            success: function(data) {
+                if (! ('error' in data)) {
+                    $.ajax({
+                        'url': data.yelp_url,
+                        'cache': true,
+                        'dataType': 'jsonp',
+                        'jsonpCallback': 'cb',
+                        'success': function(yelp_data, textStats, XMLHttpRequest) {
+                            if (currentPlace == place) {
+                                $(".yelp_link").attr('href', yelp_data.url);
+                                $("#yelp_rating_img").attr('src', yelp_data.rating_img_url_small);
+                                var reviewPlural = (yelp_data.review_count == '1' ? ' review': ' reviews');
+                                $("#info_rating p").text(yelp_data.review_count + reviewPlural);
+                                var phone = yelp_data.display_phone;
+                                if (phone.indexOf("+") == 0) {
+                                    phone = phone.slice(phone.indexOf("-") + 1, phone.length);
+                                }
+                                $("#info_phone_number span").text(phone);
+                                $("#info_phone_number").show();
+                                $("#loading_yelp_results").hide();
+                                $("#info_rating").show();
+                            }
+                        }
+                    });
+                }
+                else {
+                    $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
+                    $("#info_rating").show();
+                }
 
-          }
+            }
         });
 
         var spinner = getSpinner()
@@ -158,7 +139,7 @@ $(document).ready(function() {
             $("#info_restaurant_notes p").text('');
         }
         $.get("/menu_for_place", {
-            'chain_pk': place.fields.chain
+            'chain_name': place.fields.chain
         },
         function(data) {
             spinner.stop();
@@ -177,19 +158,10 @@ $(document).ready(function() {
         currentPin.setIcon(highlightedPinImage);
     }
 
-    var placesWaitingList = [];
-    var placesList = [];
-
-    function addPlace(place, redraw, refresh) {
-        placesWaitingList.push(place);
-        if (redraw) {
-            var addedPlaces = renderPage(refresh);
-            if (addedPlaces && 'addedMarkers' in addedPlaces) {
-              index = addedPlaces['addedMarkers'].length -1;
-              var marker = addedPlaces['addedMarkers'][0];
-              var place = addedPlaces['addedPlaces'][0];
-              selectPlace(place, marker);
-            }
+    function addPlaceAndDraw(place, select) {
+        var marker = addMarkerFromJson(place);
+        if (select) {
+            selectPlace(place, marker);
         }
     }
     var markersArray = [];
@@ -202,12 +174,13 @@ $(document).ready(function() {
         }
     }
     function selectPlace(place, marker) {
-      flashPlaceInfo(place);
-      highlightPin(marker);
-      map.panTo(marker.getPosition());
+        flashPlaceInfo(place);
+        highlightPin(marker);
+        map.panTo(marker.getPosition());
     }
     function addMarkerFromJson(place) {
-        var latLng = new google.maps.LatLng(place.fields.latitude, place.fields.longitude);
+        var place_location = place.fields.latlng;
+        var latLng = new google.maps.LatLng(place_location.latitude, place_location.longitude);
         var marker = new google.maps.Marker({
             position: latLng,
             map: map,
@@ -220,7 +193,7 @@ $(document).ready(function() {
         function() {
             selectPlace(place, marker);
         });
-        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>"); 
+        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>");
         listEntry.click(function() {
             selectPlace(place, marker);
         });
@@ -228,36 +201,7 @@ $(document).ready(function() {
         return marker;
 
     }
-    function renderPage(refresh) {
-        var addedPlaces = [];
-        var addedMarkers = [];
-        if (refresh) {
-            $("#info_panel ul").empty();
-            deleteOverlays();
-            while (placesList.length > 0) {
-                place = placesList.pop();
-                placesWaitingList.push(place);
-            }
-        }
-        while (placesWaitingList.length > 0) {
-            place = placesWaitingList.pop();
-            var marker = addMarkerFromJson(place);
-            addedMarkers.push(marker);
-            placesList.push(place);
-            addedPlaces.push(place);
-        }
-        hidePlaceInfo();
-        return {'addedPlaces': addedPlaces, 'addedMarkers' : addedMarkers};
-    }
 
-    $.get("/get_all_places",
-    function(data) {
-        data.map(function(place) {
-            addPlace(place, false, false)
-        });
-        renderPage(true);
-    },
-    "json");
     var autocomplete_options = {
         types: ['establishment']
     };
@@ -327,7 +271,6 @@ $(document).ready(function() {
         event.preventDefault();
         var place = autocomplete.getPlace();
         if (place) {
-          place.latitude 
             var menuItems = [];
             $('.menu_item:not(.new_menu_field)').each(function(index) {
                 var name = this.value;
@@ -361,13 +304,11 @@ $(document).ready(function() {
                 },
                 success: function(data) {
                     if (! ('error' in data)) {
-                      var places = data.places;
-                      for (var i=places.length-1; i>0; i--) {
-                        var returned_place = places[i];
-                        addPlace(returned_place, false, false);
-                      }
-                      addPlace(places[0], true);
-                      showSuccessAlert(places[0].fields.name);
+                        var google_id = data['place_id'];
+                        initializeMap(function(place) {
+                            return (place.fields.google_id == google_id);
+                        });
+                        showSuccessAlert(place.name);
                     }
                     else {
                         showErrorAlert(place.name);
@@ -384,30 +325,92 @@ $(document).ready(function() {
             console.log('nooo');
         }
     });
-    $('#addPlaceModal').on('hidden', function () {
-      $(':input', '#add_place_form').val('').removeAttr('checked');
+    $('#addPlaceModal').on('hidden',
+    function() {
+        $(':input', '#add_place_form').val('').removeAttr('checked');
     });
-    
+
     $('#why_chain').popover();
-    
-    $('.append_menu_item').on('keydown', function() {
-      $('#append_menu_item_submit').removeClass('disabled')
-      });
-    $("#append_menu_item_submit").click(function() {
-      var postData = {};
-      postData['menu_item_name'] = $('#append_menu_item_name').val();
-      postData['menu_item_description'] = $('#append_menu_item_description').val();
-      postData['chain_pk'] = currentPlace.fields.chain;
-      //ajax call
-      $.ajax({
-        url: "/add_menu_item",
-        type: "post",
-        data: postData,
-        dataType: "json",
-      });
-      $("#no_menu_items").remove();
-      $(':input', '#append_menu_item_form').val('').removeAttr('checked');
-      $("#info_menu_items dl").append("<dt>" + postData['menu_item_name'] + "</dt><dd>" + postData['menu_item_description'] + "</dd>");
+
+    $('.append_menu_item').on('keydown',
+    function() {
+        $('#append_menu_item_submit').removeClass('disabled')
     });
+    $("#append_menu_item_submit").click(function() {
+        var postData = {};
+        postData['menu_item_name'] = $('#append_menu_item_name').val();
+        postData['menu_item_description'] = $('#append_menu_item_description').val();
+        postData['chain_name'] = currentPlace.fields.chain;
+        $.ajax({
+            url: "/add_menu_item",
+            type: "post",
+            data: postData,
+            dataType: "json",
+        });
+        $("#no_menu_items").remove();
+        $(':input', '#append_menu_item_form').val('').removeAttr('checked');
+        $("#info_menu_items dl").append("<dt>" + postData['menu_item_name'] + "</dt><dd>" + postData['menu_item_description'] + "</dd>");
+    });
+
+    var currentLatLng = {
+        latitude: 34.038058,
+        longitude: -118.468677
+    };
+    function location_success(position) {
+        var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        currentLatLng.latitude = position.coords.latitude;
+        currentLatLng.longitude = position.coords.longitude;
+        map.panTo(latLng);
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+            title: 'Your Location',
+            icon: locationPinImage,
+            shadow: pinShadow,
+            zIndex: -5
+        });
+    }
+
+    function location_error(msg) {
+        var latLng = new google.maps.LatLng(34.038058, -118.468677);
+        map.panTo(latLng)
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(location_success, location_error);
+    } else {
+        location_error();
+    }
+    var placeList = [];
+    var filteredPlaceList = [];
+    function drawPlaces(places, shouldHighlightFunction) {
+      $("#info_panel ul").empty();
+      deleteOverlays();
+      for (var i = 0; i < places.length; i++) {
+          var shouldHighlight = shouldHighlightFunction(places[i]);
+          addPlaceAndDraw(places[i], shouldHighlight);
+      }
+    }
+    function initializeMap(shouldHighlightFunction) {
+        if (!shouldHighlightFunction) shouldHighlightFunction = function() {
+            return false
+        };
+        $.ajax({
+            url: "/get_all_places",
+            type: "get",
+            data: {
+                latitude: currentLatLng.latitude,
+                longitude: currentLatLng.longitude
+            },
+            dataType: "json",
+            success: function(data) {
+              placeList = data;
+                drawPlaces(placeList, shouldHighlightFunction);
+            }
+        });
+    }
+    initializeMap();
+
+
 
 });
