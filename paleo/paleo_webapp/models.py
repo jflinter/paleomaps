@@ -11,7 +11,10 @@ from settings import DATABASES
 
 def create_geo_index(sender=None, **kwargs):
   options = DATABASES['default']
-  uri = 'mongodb://{0}:{1}@{2}:{3}/{4}'.format(options['USER'], options['PASSWORD'], options['HOST'], options['PORT'], options['NAME'])
+  if options['USER'] and options['PASSWORD']:
+    uri = 'mongodb://{0}:{1}@{2}:{3}/{4}'.format(options['USER'], options['PASSWORD'], options['HOST'], options['PORT'], options['NAME'])
+  else:
+    uri = 'mongodb://{0}:{1}/{2}'.format(options['HOST'], options['PORT'], options['NAME'])
   db = Connection(uri)[options['NAME']]
   db.paleo_webapp_place.create_index([("latlng", GEO2D)])
 

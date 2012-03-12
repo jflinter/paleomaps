@@ -24,9 +24,7 @@ def get_yelp_request(path, options={'callback' : 'cb'}):
 def google_place_details_search(reference):
   encoded_params = urllib.urlencode({'reference': reference, 'sensor': 'false', 'key': GOOGLE_API_KEY})
   url = 'https://maps.googleapis.com/maps/api/place/details/json?{0}'.format(encoded_params)
-  print url
   json_response = requests.get(url)
-  print json_response.text, json_response.status_code
   if json_response.status_code == 200:
     r = json.loads(json_response.text)
     if r['status'] == 'OK':
@@ -70,7 +68,6 @@ def google_place_and_location_search(name, latitude, longitude, location='', rad
     for result in results:
       if (not location) or num_results > 1:
         place_details = google_place_details_search(result['reference'])
-        print place_details
         address = place_details['formatted_address']
       else: address = location
       location_search_result = google_location_search(address)
@@ -88,6 +85,5 @@ def yelp_place_search(name, latitude, longitude, numResults=1):
   json_response = requests.get(url)
   if json_response.status_code == 200:
     r = json.loads(json_response.text)
-    print [y['name'] for y in r['businesses']]
     return r['businesses'][:numResults]
   return None

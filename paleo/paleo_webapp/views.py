@@ -4,7 +4,13 @@ from paleo_webapp.models import Place, MenuItem, Chain
 from django.core import serializers
 from django.template import RequestContext
 import django.utils.simplejson as json
+from jsonserializer import JSONSerializer
 from external_apis import get_yelp_request, google_location_search, google_place_search, yelp_place_search, google_place_and_location_search
+
+def serialize_to_json(values):
+  serializer = JSONSerializer()
+  data = serializer.serialize(values)
+  return HttpResponse(data, mimetype="application/json")
 
 def home(request):
   return render_to_response('home.html', RequestContext(request))
@@ -15,14 +21,12 @@ def get_all_places(request):
   longitude = data['longitude']
   query_location = {'latitude': float(latitude), 'longitude': float(longitude)}
   places = Place.objects.raw_query({'latlng' : {'$near' : query_location}})
-  data = serializers.serialize("json", places)
-  print data
-  return HttpResponse(data, mimetype="application/json")
+  print [place.location for place in places]
+  return serialize_to_json(places)
   
 def menu_for_place(request):
   chain = Chain.objects.get(name=request.GET['chain_name'])
-  data = serializers.serialize("json", chain.menu_items)
-  return HttpResponse(data, mimetype="application/json")
+  return serialize_to_json(chain.menu_items)
 
 def add_menu_item(request):
   data = request.POST
@@ -30,8 +34,7 @@ def add_menu_item(request):
   item_name=data['menu_item_name']
   item_desc=data['menu_item_description']
   menuitem = addItem(chain_name, item_name, item_desc)
-  data = serializers.serialize("json", [menuitem])
-  return HttpResponse(data, mimetype="application/json")
+  return serialize_to_json(menuitem)
 
 def addItem(chain_name, item_name, item_desc):
   chain = Chain.objects.get(name=chain_name)
@@ -71,10 +74,10 @@ def add_place(request):
   
 def get_yelp_request_url(request):
   data = request.POST
-  business_pk = data.get('business_pk')
+  business_id = data.get('business_id')
   yelp_id = data.get('yelp_id')
   if not yelp_id:
-    place = Place.objects.get(pk=business_pk)
+    place = Place.objects.get(id=business_id)
     if not place.yelp_id:
       place.refresh_yelp_info()
     yelp_id = place.yelp_id

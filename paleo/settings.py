@@ -1,4 +1,7 @@
 from os.path import abspath, dirname, basename, join
+from os import environ
+
+env = lambda e, d: environ[e] if environ.has_key(e) else d
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -12,16 +15,28 @@ ADMINS = (
 
 MANAGERS = ADMINS
 #mongodb://heroku_app3076898:l36umbb1ulk8enm5sipltsp3g1@ds031477.mongolab.com:31477/heroku_app3076898
-DATABASES = {
-  'default': {
-    'ENGINE': 'django_mongodb_engine',
-    'NAME': 'heroku_app3076898',
-    'HOST': 'ds031477.mongolab.com',
-    'USER': 'heroku_app3076898',
-    'PASSWORD': 'l36umbb1ulk8enm5sipltsp3g1',
-    'PORT': 31477
+if env('DEPLOYMENT_ENVIRONMENT', 'development') == 'production':
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django_mongodb_engine',
+      'NAME': 'heroku_app3076898',
+      'HOST': 'ds031477.mongolab.com',
+      'USER': 'heroku_app3076898',
+      'PASSWORD': 'l36umbb1ulk8enm5sipltsp3g1',
+      'PORT': 31477
+    }
   }
-}
+else:
+  DATABASES = {
+     'default' : {
+        'ENGINE' : 'django_mongodb_engine',
+        'NAME' : 'paleo',
+        'HOST': 'localhost',
+        'USER': '',
+        'PASSWORD': '',
+        'PORT': 27017,
+     }
+  }
 
 YELP_CONSUMER_KEY = 'ZEpWbbj-1S-KGUebyAc-9Q'
 YELP_CONSUMER_SECRET = 'Ksi3aMmNKjemvoCA3vTbcX0Ji4U'

@@ -80,15 +80,15 @@ $(document).ready(function() {
         $("#info_phone_number").hide();
         $("#loading_yelp_results").show();
         $("#info_menu_items dl").empty();
-        $("#info_title h2 span").text(place.fields.name);
-        $("#info_address p").text(place.fields.location);
+        $("#info_title h2 span").text(place.name);
+        $("#info_address p").text(place.location);
         $.ajax({
             url: '/get_yelp_url',
             type: 'post',
             cache: true,
             data: {
-                'business_pk': place.pk,
-                'yelp_id': place.fields.yelp_id
+                'business_id': place.id,
+                'yelp_id': place.yelp_id
             },
             dataType: 'json',
             error: function(data) {
@@ -134,16 +134,16 @@ $(document).ready(function() {
 
         var spinner = getSpinner()
         spinner.spin(document.getElementById('menu_items_spinner'));
-        if (place.fields.description != '') {
+        if (place.description != '') {
             $("#info_restaurant_notes h3").text('Restaurant Notes:');
-            $("#info_restaurant_notes p").text(place.fields.description);
+            $("#info_restaurant_notes p").text(place.description);
         }
         else {
             $("#info_restaurant_notes h3").text('');
             $("#info_restaurant_notes p").text('');
         }
         $.get("/menu_for_place", {
-            'chain_name': place.fields.chain
+            'chain_name': place.chain
         },
         function(data) {
             spinner.stop();
@@ -151,7 +151,7 @@ $(document).ready(function() {
                 $("#info_menu_items dl").append("<dt id='no_menu_items'>No menu items available</dt>")
             }
             data.map(function(menu_item) {
-                $("#info_menu_items dl").append("<dt>" + menu_item.fields.name + "</dt><dd>" + menu_item.fields.description + "</dd>");
+                $("#info_menu_items dl").append("<dt>" + menu_item.name + "</dt><dd>" + menu_item.description + "</dd>");
             })
         },
         "json");
@@ -183,12 +183,12 @@ $(document).ready(function() {
         map.panTo(marker.getPosition());
     }
     function addMarkerFromJson(place) {
-        var place_location = place.fields.latlng;
+        var place_location = place.latlng;
         var latLng = new google.maps.LatLng(place_location.latitude, place_location.longitude);
         var marker = new google.maps.Marker({
             position: latLng,
             map: map,
-            title: place.fields.name,
+            title: place.name,
             icon: placePinImage,
             shadow: pinShadow
         });
@@ -197,7 +197,7 @@ $(document).ready(function() {
         function() {
             selectPlace(place, marker);
         });
-        var listEntry = $("<li><a href=#>" + place.fields.name + "<i class='icon-chevron-right pull-right' /></a></li>");
+        var listEntry = $("<li><a href=#>" + place.name + "<i class='icon-chevron-right pull-right' /></a></li>");
         listEntry.click(function() {
             selectPlace(place, marker);
         });
@@ -310,7 +310,7 @@ $(document).ready(function() {
                     if (! ('error' in data)) {
                         var google_id = data['place_id'];
                         initializeMap(function(place) {
-                            return (place.fields.google_id == google_id);
+                            return (place.google_id == google_id);
                         });
                         showSuccessAlert(place.name);
                     }
@@ -341,10 +341,11 @@ $(document).ready(function() {
         $('#append_menu_item_submit').removeClass('disabled')
     });
     $("#append_menu_item_submit").click(function() {
+      
         var postData = {};
         postData['menu_item_name'] = $('#append_menu_item_name').val();
         postData['menu_item_description'] = $('#append_menu_item_description').val();
-        postData['chain_name'] = currentPlace.fields.chain;
+        postData['chain_name'] = currentPlace.chain;
         $.ajax({
             url: "/add_menu_item",
             type: "post",
@@ -408,6 +409,7 @@ $(document).ready(function() {
             },
             dataType: "json",
             success: function(data) {
+              console.log(data);
               placeList = data;
                 drawPlaces(placeList, shouldHighlightFunction);
             }
