@@ -6,6 +6,7 @@ from django.template import RequestContext
 import django.utils.simplejson as json
 from jsonserializer import JSONSerializer
 from external_apis import get_yelp_request, google_location_search, google_place_search, yelp_place_search, google_place_and_location_search
+from django.views.decorators.csrf import csrf_exempt                                          
 
 def serialize_to_json(values):
   serializer = JSONSerializer()
@@ -21,13 +22,13 @@ def get_all_places(request):
   longitude = data['longitude']
   query_location = {'latitude': float(latitude), 'longitude': float(longitude)}
   places = Place.objects.raw_query({'latlng' : {'$near' : query_location}})
-  print [place.location for place in places]
   return serialize_to_json(places)
   
 def menu_for_place(request):
   chain = Chain.objects.get(name=request.GET['chain_name'])
   return serialize_to_json(chain.menu_items)
 
+@csrf_exempt
 def add_menu_item(request):
   data = request.POST
   chain_name=data['chain_name']
@@ -43,6 +44,7 @@ def addItem(chain_name, item_name, item_desc):
   chain.save()
   return menuitem
 
+@csrf_exempt
 def add_place(request):
   data = request.POST
   name = data.get('name')
@@ -58,7 +60,6 @@ def add_place(request):
       description = data.get('description')
       latlng = {'latitude' : float(results[0]['geometry']['location']['lat']), 'longitude' : float(results[0]['geometry']['location']['lng'])}
       place, place_created = Place.objects.get_or_create(google_id = google_id, defaults={'name': name, 'latlng': latlng, 'chain': chain, 'location': location, 'description': description})
-      print place, place_created
       menuitems = json.loads(data.get('menu_items'))
       for item in menuitems:
         addItem(name, item['name'], item['description'])
@@ -71,7 +72,8 @@ def add_place(request):
       response = {'added': place_created, 'place_id': place.google_id}
       return HttpResponse(json.dumps(response), mimetype="application/json")
   return HttpResponse(json.dumps({'error' : 'place not saved'}), mimetype="application/json")
-  
+
+@csrf_exempt
 def get_yelp_request_url(request):
   data = request.POST
   business_id = data.get('business_id')
