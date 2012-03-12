@@ -22,17 +22,6 @@ DATABASES = {
       'ENGINE' : 'django_mongodb_engine',
       'NAME' : 'heroku_app3076898'
    }
-   '''
-   'default' : {
-  # mongodb://<user>:<password>@ds031587.mongolab.com:31587/paleo
-      'HOST': 'ds031587.mongolab.com',
-      'PORT': 31587,
-      'USER': 'jflinter',
-      'PASSWORD': 'Kn0bGobl',
-      'ENGINE' : 'django_mongodb_engine',
-      'NAME' : 'paleo'
-   }
-   '''
 }
 
 
