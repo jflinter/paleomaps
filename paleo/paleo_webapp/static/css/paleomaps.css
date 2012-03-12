@@ -21,7 +21,7 @@ img {
   position:absolute; bottom:0;
 }
 #place_list{
-  height:400px;
+  height:425px;
   overflow-y:auto;
 }
 .yelp_brand {
@@ -39,7 +39,7 @@ img {
   position:absolute;
   width:300px;
   background-color:#ffffff;
-  height:inherit;
+  height:450px;
   overflow-y:auto;
 }
 

@@ -92,8 +92,10 @@ $(document).ready(function() {
             },
             dataType: 'json',
             error: function(data) {
-                $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
+                $("#info_rating p").text('Yelp reviews could not be retrieved. ');
+                $(".yelp_link").attr('href', 'http://www.yelp.com/');
                 $("#info_rating").show();
+                $("#loading_yelp_results").hide();
             },
             success: function(data) {
                 if (! ('error' in data)) {
@@ -121,8 +123,10 @@ $(document).ready(function() {
                     });
                 }
                 else {
-                    $("#info_rating p").text('Yelp reviews could not be retrieved at this time');
+                    $("#info_rating p").text('Yelp reviews could not be retrieved. ');
+                    $(".yelp_link").attr('href', 'http://www.yelp.com/');
                     $("#info_rating").show();
+                    $("#loading_yelp_results").hide();
                 }
 
             }

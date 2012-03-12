@@ -7,9 +7,12 @@ from djangotoolbox.fields import ListField, DictField, EmbeddedModelField
 from django_mongodb_engine.contrib import MongoDBManager
 from pymongo import Connection, GEO2D
 from django.db.models.signals import post_syncdb
+from settings import DATABASES
 
 def create_geo_index(sender=None, **kwargs):
-  db = Connection().paleo_db
+  options = DATABASES['default']
+  uri = 'mongodb://{0}:{1}@{2}:{3}/{4}'.format(options['USER'], options['PASSWORD'], options['HOST'], options['PORT'], options['NAME'])
+  db = Connection(uri)[options['NAME']]
   db.paleo_webapp_place.create_index([("latlng", GEO2D)])
 
 post_syncdb.connect(create_geo_index)
