@@ -11,19 +11,17 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
+#mongodb://heroku_app3076898:l36umbb1ulk8enm5sipltsp3g1@ds031477.mongolab.com:31477/heroku_app3076898
 DATABASES = {
-  'default' : {
-   #mongodb://heroku_app3076898:gv7e7sqeu9vrmgue3e2uqivjrc@ds031477.mongolab.com:31477/heroku_app3076898
-      'HOST': 'ds031477.mongolab.com',
-      'PORT': 31477,
-      'USER': 'heroku_app3076898',
-      'PASSWORD': 'gv7e7sqeu9vrmgue3e2uqivjrc',
-      'ENGINE' : 'django_mongodb_engine',
-      'NAME' : 'heroku_app3076898'
-   }
+  'default': {
+    'ENGINE': 'django_mongodb_engine',
+    'NAME': 'heroku_app3076898',
+    'HOST': 'ds031477.mongolab.com',
+    'USER': 'heroku_app3076898',
+    'PASSWORD': 'l36umbb1ulk8enm5sipltsp3g1',
+    'PORT': 31477
+  }
 }
-
 
 YELP_CONSUMER_KEY = 'ZEpWbbj-1S-KGUebyAc-9Q'
 YELP_CONSUMER_SECRET = 'Ksi3aMmNKjemvoCA3vTbcX0Ji4U'
