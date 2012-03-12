@@ -15,7 +15,7 @@ def get_all_places(request):
   longitude = data['longitude']
   query_location = {'latitude': float(latitude), 'longitude': float(longitude)}
   places = Place.objects.raw_query({'latlng' : {'$near' : query_location}})
-  print "PLACE EXAMPLE", places[0]
+  print "PLACE EXAMPLE", places[0].latlng
   data = serializers.serialize("json", places)
   return HttpResponse(data, mimetype="application/json")
   
