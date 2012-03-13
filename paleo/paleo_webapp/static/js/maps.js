@@ -356,36 +356,6 @@ $(document).ready(function() {
         $(':input', '#append_menu_item_form').val('').removeAttr('checked');
         $("#info_menu_items dl").append("<dt>" + postData['menu_item_name'] + "</dt><dd>" + postData['menu_item_description'] + "</dd>");
     });
-
-    var currentLatLng = {
-        latitude: 34.038058,
-        longitude: -118.468677
-    };
-    function location_success(position) {
-        var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        currentLatLng.latitude = position.coords.latitude;
-        currentLatLng.longitude = position.coords.longitude;
-        map.panTo(latLng);
-        var marker = new google.maps.Marker({
-            position: latLng,
-            map: map,
-            title: 'Your Location',
-            icon: locationPinImage,
-            shadow: pinShadow,
-            zIndex: -5
-        });
-    }
-
-    function location_error(msg) {
-        var latLng = new google.maps.LatLng(34.038058, -118.468677);
-        map.panTo(latLng)
-    }
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(location_success, location_error);
-    } else {
-        location_error();
-    }
     
     var locationSortedPlaceList = [];
     var nameSortedPlaceList = [];
@@ -407,6 +377,7 @@ $(document).ready(function() {
             url: "/get_all_places",
             type: "get",
             data: {
+                zip: $("#zipCodeSearch").val(),
                 latitude: currentLatLng.latitude,
                 longitude: currentLatLng.longitude
             },
@@ -415,7 +386,7 @@ $(document).ready(function() {
               locationSortedPlaceList = data;
               nameSortedPlaceList = data.slice(0);
               nameSortedPlaceList.sort(function(a,b){
-                if (a.name > b.name) return 1;
+                if (a.name >= b.name) return 1;
                 return -1;
               });
               if (sortMethod == "NAME") {
@@ -427,7 +398,65 @@ $(document).ready(function() {
             }
         });
     }
+    function getZipFromLatLng(lat, lng, callback) {
+      callback("99999");
+    }
+    function getLatLngFromZip(zip, callback) {
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode( { 'address': zip}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            callback(results[0].geometry.location.Ua, results[0].geometry.location.Va);
+        }
+      });
+    }
+    var currentLatLng = {
+        latitude: 34.038058,
+        longitude: -118.468677
+    };
+    var locationPin = null;
+    $("#zipCodeSearch").val('10000');
+    function show_position(lat, lng, title) {
+      var latLng = new google.maps.LatLng(lat, lng);
+      currentLatLng.latitude = lat;
+      currentLatLng.longitude = lng;
+      map.panTo(latLng);
+      if (locationPin) locationPin.setMap(null);
+      locationPin = new google.maps.Marker({
+          position: latLng,
+          map: map,
+          title: title,
+          icon: locationPinImage,
+          shadow: pinShadow,
+          zIndex: -5
+      });
+    }
+    show_position(currentLatLng.latitude, currentLatLng.longitude, 'Crossfit LA');
     initializeMap();
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          show_position(position.coords.latitude, position.coords.longitude, 'Your Location');
+          initializeMap();
+          getZipFromLatLng(position.coords.latitude, position.coords.longitude, function(zip) {
+            $("#zipCodeSearch").val(zip);
+          });
+        });
+    }
+    
+    $("#zipCodeSearchSubmit").click(function(event) {
+      event.preventDefault();
+      var zipCode = $("#zipCodeSearch").val();
+      console.log(zipCode);
+      if (zipCode.match(/^\d\d\d\d\d$/)) {
+        $("#zipCodeSearchGroup").removeClass('error');
+        getLatLngFromZip(zipCode, function(lat, lng) {
+          show_position(lat, lng, 'Your Location');
+          initializeMap();
+        });
+      }
+      else {
+        $("#zipCodeSearchGroup").addClass('error');
+      }
+    })
     
     $(".sortPlaceRadio").change(function() {
       if (sortMethod != "NAME") {
@@ -439,5 +468,6 @@ $(document).ready(function() {
         drawPlaces(locationSortedPlaceList);
       }
     });
-
+    
+    
 });

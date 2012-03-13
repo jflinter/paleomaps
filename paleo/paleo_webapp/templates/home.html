@@ -36,18 +36,24 @@
 	</div>
 	<div id="place_list_holder">
 		<h3>Browse Nearby Paleo Restaurants:</h3>
+		<form class="form-inline" id="zipSearchForm">
+		<div class='control-group' id="zipCodeSearchGroup">
+		<label class="control-label inline" for="zipCodeSearch">Showing places near:
+			<input type="text" class="input-min inline span1 search-query" maxlength='5' value="90404" id="zipCodeSearch" placeholder="Zip">
+			  <button type="submit" class="btn inline" id="zipCodeSearchSubmit">Change</button>
+		</label>
+		</div>
 		<div class='control-group'>
-			<label class="control-label inline" for="sortRadios">Sorted by:
+			<label class="control-label inline" for="sortRadios">Sorted by: </label>
 			<label class="radio inline">
-				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByDistance" value="option1" checked="true">
-				Distance to you
+				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByDistance" value="option1" checked="true">Distance to you
 			</label>
 			<label class="radio inline">
-				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByName" value="option2">
-				Name
+				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByName" value="option2">Name
             </label>
-</label>
+			</label>
 		</div>
+		</form>
 		<div id="place_list">
 			<ul class="nav nav-tabs nav-stacked"/>
 		</div>
