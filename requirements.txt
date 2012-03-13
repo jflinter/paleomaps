@@ -10,4 +10,4 @@ psycopg2==2.4.4
 pymongo==2.1.1
 requests==0.10.6
 wsgiref==0.1.2
-git+git://github.com/jflinter/django-nonrel.git
+git+https://github.com/django-nonrel/django-nonrel.git
