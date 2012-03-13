@@ -137,7 +137,6 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'paleo_webapp',
-    'djangotoolbox',
 )
 
 # A sample logging configuration. The only tangible logging
