@@ -4,7 +4,10 @@ body {
 img {
   max-width: none;
 }
-
+#twitter_link {
+  position: relative;
+  top: 8px;
+}
 #map_canvas {
   height:500px;
 }
