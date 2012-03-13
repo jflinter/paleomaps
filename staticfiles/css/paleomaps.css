@@ -21,7 +21,7 @@ img {
   position:absolute; bottom:0;
 }
 #place_list{
-  height:400px;
+  height:360px;
   overflow-y:auto;
 }
 .yelp_brand {
@@ -41,6 +41,12 @@ img {
   background-color:#ffffff;
   height:450px;
   overflow-y:auto;
+}
+.control-group {
+  margin-bottom:0px;
+}
+#zipSearchForm {
+  margin-bottom:3px;
 }
 
 #info_rating p {
