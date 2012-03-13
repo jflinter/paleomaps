@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 from paleo_webapp.views import home, get_all_places, menu_for_place, add_place, add_menu_item, get_yelp_request_url
+import settings
 
 urlpatterns = patterns('',
     url(r'^$', home),
@@ -8,4 +9,7 @@ urlpatterns = patterns('',
     url(r'^add_place$', add_place),
     url(r'^add_menu_item$', add_menu_item),
     url(r'^get_yelp_url$', get_yelp_request_url),
+)
+urlpatterns += patterns('',
+    (r'^static/(.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
 )

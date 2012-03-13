@@ -1,0 +1,113 @@
+body {
+  padding-top: 60px;
+}
+img {
+  max-width: none;
+}
+
+#map_canvas {
+  height:500px;
+}
+#info_panel {
+  position:relative;
+  overflow:hidden;
+  height:500px;
+}
+#place_list_holder {
+  height:inherit;
+}
+#place_list_holder .btn-success{
+  width:270px;
+  position:absolute; bottom:0;
+}
+#place_list{
+  height:400px;
+  overflow-y:auto;
+}
+.yelp_brand {
+  vertical-align:text-bottom;
+}
+#yelp_spinner {
+  position:absolute;
+  height:25px;
+  width:50px;
+  display:inline;
+  z-index:500;
+}
+#place_info {
+  display:none;
+  position:absolute;
+  width:300px;
+  background-color:#ffffff;
+  height:450px;
+  overflow-y:auto;
+}
+
+#info_rating p {
+  display:inline;
+  padding-left:5px;
+}
+
+.info_not_start p {
+  margin:0px;
+}
+
+dl {
+  margin-top:0px;
+  margin-left:10px;
+}
+.place_info_window {
+  width:20px;
+  height:15px;
+  overflow:hidden;
+}
+#info_menu_items {
+  margin-top:10px;
+}
+#add_place_button {
+  margin-bottom:8px;
+}
+#add_place_description {
+  height:60px;
+}
+.pac-container[style] {
+  z-index:1050 !important;
+}
+#add_place_form h4 {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+#modal_spinner {
+  height: 20px;
+  width: 10px;
+  display: inline-block;
+  float: right;
+  margin-left: -5px;
+  padding-right: 10px;
+  vertical-align: bottom;
+  position: relative;
+  top: 4px;
+}
+#menu_items_spinner {
+  height: 10px;
+  width: 10px;
+  display: inline;
+  z-index: 500;
+  position: absolute;
+}
+
+#alert_success {
+  position:fixed;
+  width:810px;
+  top:0px;
+  z-index:9999;
+}
+#alert_error {
+  position:fixed;
+  width:810px;
+  top:0px;
+  z-index:9999;
+}
+#why_chain {
+  color:#08C;
+}
