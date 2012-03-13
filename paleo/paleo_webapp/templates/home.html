@@ -35,7 +35,19 @@
 		</div>
 	</div>
 	<div id="place_list_holder">
-		<h3>Paleo-friendly Places Near You:</h3>
+		<h3>Browse Nearby Paleo Restaurants:</h3>
+		<div class='control-group'>
+			<label class="control-label inline" for="sortRadios">Sorted by:
+			<label class="radio inline">
+				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByDistance" value="option1" checked="true">
+				Distance to you
+			</label>
+			<label class="radio inline">
+				<input type="radio" name="sortRadios" class="sortPlaceRadio" id="sortPlacesByName" value="option2">
+				Name
+            </label>
+</label>
+		</div>
 		<div id="place_list">
 			<ul class="nav nav-tabs nav-stacked"/>
 		</div>

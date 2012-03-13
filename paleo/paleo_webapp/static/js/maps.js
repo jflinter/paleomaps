@@ -386,9 +386,15 @@ $(document).ready(function() {
     } else {
         location_error();
     }
-    var placeList = [];
-    var filteredPlaceList = [];
+    
+    var locationSortedPlaceList = [];
+    var nameSortedPlaceList = [];
+    var sortMethod = "LOCATION";
+    
     function drawPlaces(places, shouldHighlightFunction) {
+      if (!shouldHighlightFunction) shouldHighlightFunction = function() {
+          return false
+      };
       $("#info_panel ul").empty();
       deleteOverlays();
       for (var i = 0; i < places.length; i++) {
@@ -397,9 +403,6 @@ $(document).ready(function() {
       }
     }
     function initializeMap(shouldHighlightFunction) {
-        if (!shouldHighlightFunction) shouldHighlightFunction = function() {
-            return false
-        };
         $.ajax({
             url: "/get_all_places",
             type: "get",
@@ -409,14 +412,33 @@ $(document).ready(function() {
             },
             dataType: "json",
             success: function(data) {
-              console.log(data);
-              placeList = data;
-                drawPlaces(placeList, shouldHighlightFunction);
+              locationSortedPlaceList = data;
+              nameSortedPlaceList = data.slice(0);
+              nameSortedPlaceList.map(function(x){console.log(x.name)});
+              nameSortedPlaceList.sort(function(a,b){
+                if (a.name > b.name) return 1;
+                return -1;
+              });
+              if (sortMethod == "NAME") {
+                drawPlaces(nameSortedPlaceList, shouldHighlightFunction);
+              }
+              else {
+                drawPlaces(locationSortedPlaceList, shouldHighlightFunction);
+              }
             }
         });
     }
     initializeMap();
-
-
+    
+    $(".sortPlaceRadio").change(function() {
+      if (sortMethod != "NAME") {
+        sortMethod = "NAME";
+        drawPlaces(nameSortedPlaceList);
+      }
+      else if (sortMethod != "LOCATION") {
+        sortMethod = "LOCATION";
+        drawPlaces(locationSortedPlaceList);
+      }
+    });
 
 });
