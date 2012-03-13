@@ -341,7 +341,7 @@ $(document).ready(function() {
         $('#append_menu_item_submit').removeClass('disabled')
     });
     $("#append_menu_item_submit").click(function() {
-      
+
         var postData = {};
         postData['menu_item_name'] = $('#append_menu_item_name').val();
         postData['menu_item_description'] = $('#append_menu_item_description').val();
@@ -356,21 +356,21 @@ $(document).ready(function() {
         $(':input', '#append_menu_item_form').val('').removeAttr('checked');
         $("#info_menu_items dl").append("<dt>" + postData['menu_item_name'] + "</dt><dd>" + postData['menu_item_description'] + "</dd>");
     });
-    
+
     var locationSortedPlaceList = [];
     var nameSortedPlaceList = [];
     var sortMethod = "LOCATION";
-    
+
     function drawPlaces(places, shouldHighlightFunction) {
-      if (!shouldHighlightFunction) shouldHighlightFunction = function() {
-          return false
-      };
-      $("#info_panel ul").empty();
-      deleteOverlays();
-      for (var i = 0; i < places.length; i++) {
-          var shouldHighlight = shouldHighlightFunction(places[i]);
-          addPlaceAndDraw(places[i], shouldHighlight);
-      }
+        if (!shouldHighlightFunction) shouldHighlightFunction = function() {
+            return false
+        };
+        $("#info_panel ul").empty();
+        deleteOverlays();
+        for (var i = 0; i < places.length; i++) {
+            var shouldHighlight = shouldHighlightFunction(places[i]);
+            addPlaceAndDraw(places[i], shouldHighlight);
+        }
     }
     function initializeMap(shouldHighlightFunction) {
         $.ajax({
@@ -383,91 +383,105 @@ $(document).ready(function() {
             },
             dataType: "json",
             success: function(data) {
-              locationSortedPlaceList = data;
-              nameSortedPlaceList = data.slice(0);
-              nameSortedPlaceList.sort(function(a,b){
-                if (a.name >= b.name) return 1;
-                return -1;
-              });
-              if (sortMethod == "NAME") {
-                drawPlaces(nameSortedPlaceList, shouldHighlightFunction);
-              }
-              else {
-                drawPlaces(locationSortedPlaceList, shouldHighlightFunction);
-              }
+                locationSortedPlaceList = data;
+                nameSortedPlaceList = data.slice(0);
+                nameSortedPlaceList.sort(function(a, b) {
+                    if (a.name >= b.name) return 1;
+                    return - 1;
+                });
+                if (sortMethod == "NAME") {
+                    drawPlaces(nameSortedPlaceList, shouldHighlightFunction);
+                }
+                else {
+                    drawPlaces(locationSortedPlaceList, shouldHighlightFunction);
+                }
             }
         });
     }
     function getZipFromLatLng(lat, lng, callback) {
-      callback("99999");
+        var geocoder = new google.maps.Geocoder();
+        var latlng = new google.maps.LatLng(lat, lng);
+        geocoder.geocode({
+            'latLng': latlng
+        },
+        function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                address = results[0].address_components;
+                callback(address[address.length - 1].long_name);
+            }
+        });
     }
     function getLatLngFromZip(zip, callback) {
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( { 'address': zip}, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK) {
-            callback(results[0].geometry.location.Ua, results[0].geometry.location.Va);
-        }
-      });
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({
+            'address': zip
+        },
+        function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                callback(results[0].geometry.location.Ua, results[0].geometry.location.Va);
+            }
+        });
     }
     var currentLatLng = {
         latitude: 34.038058,
         longitude: -118.468677
     };
     var locationPin = null;
-    $("#zipCodeSearch").val('10000');
     function show_position(lat, lng, title) {
-      var latLng = new google.maps.LatLng(lat, lng);
-      currentLatLng.latitude = lat;
-      currentLatLng.longitude = lng;
-      map.panTo(latLng);
-      if (locationPin) locationPin.setMap(null);
-      locationPin = new google.maps.Marker({
-          position: latLng,
-          map: map,
-          title: title,
-          icon: locationPinImage,
-          shadow: pinShadow,
-          zIndex: -5
-      });
+        var latLng = new google.maps.LatLng(lat, lng);
+        currentLatLng.latitude = lat;
+        currentLatLng.longitude = lng;
+        map.panTo(latLng);
+        if (locationPin) locationPin.setMap(null);
+        locationPin = new google.maps.Marker({
+            position: latLng,
+            map: map,
+            title: title,
+            icon: locationPinImage,
+            shadow: pinShadow,
+            zIndex: -5
+        });
     }
     show_position(currentLatLng.latitude, currentLatLng.longitude, 'Crossfit LA');
     initializeMap();
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          show_position(position.coords.latitude, position.coords.longitude, 'Your Location');
-          initializeMap();
-          getZipFromLatLng(position.coords.latitude, position.coords.longitude, function(zip) {
-            $("#zipCodeSearch").val(zip);
-          });
+            show_position(position.coords.latitude, position.coords.longitude, 'Your Location');
+            initializeMap();
+            getZipFromLatLng(position.coords.latitude, position.coords.longitude,
+            function(zip) {
+                $("#zipCodeSearch").val(zip);
+            });
         });
     }
-    
+
     $("#zipCodeSearchSubmit").click(function(event) {
-      event.preventDefault();
-      var zipCode = $("#zipCodeSearch").val();
-      console.log(zipCode);
-      if (zipCode.match(/^\d\d\d\d\d$/)) {
-        $("#zipCodeSearchGroup").removeClass('error');
-        getLatLngFromZip(zipCode, function(lat, lng) {
-          show_position(lat, lng, 'Your Location');
-          initializeMap();
-        });
-      }
-      else {
-        $("#zipCodeSearchGroup").addClass('error');
-      }
+        event.preventDefault();
+        var zipCode = $("#zipCodeSearch").val();
+        console.log(zipCode);
+        if (zipCode.match(/^\d\d\d\d\d$/)) {
+            $("#zipCodeSearchGroup").removeClass('error');
+            getLatLngFromZip(zipCode,
+            function(lat, lng) {
+                show_position(lat, lng, 'Your Location');
+                initializeMap();
+            });
+        }
+        else {
+            $("#zipCodeSearchGroup").addClass('error');
+        }
     })
-    
+
     $(".sortPlaceRadio").change(function() {
-      if (sortMethod != "NAME") {
-        sortMethod = "NAME";
-        drawPlaces(nameSortedPlaceList);
-      }
-      else if (sortMethod != "LOCATION") {
-        sortMethod = "LOCATION";
-        drawPlaces(locationSortedPlaceList);
-      }
+        if (sortMethod != "NAME") {
+            sortMethod = "NAME";
+            drawPlaces(nameSortedPlaceList);
+        }
+        else if (sortMethod != "LOCATION") {
+            sortMethod = "LOCATION";
+            drawPlaces(locationSortedPlaceList);
+        }
     });
-    
-    
+
+
 });
