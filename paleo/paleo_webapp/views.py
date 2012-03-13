@@ -28,7 +28,7 @@ def menu_for_place(request):
   chain = Chain.objects.get(name=request.GET['chain_name'])
   return serialize_to_json(chain.menu_items)
 
-@csrf_exempt
+
 def add_menu_item(request):
   data = request.POST
   chain_name=data['chain_name']
@@ -44,7 +44,7 @@ def addItem(chain_name, item_name, item_desc):
   chain.save()
   return menuitem
 
-@csrf_exempt
+
 def add_place(request):
   data = request.POST
   name = data.get('name')
@@ -73,7 +73,7 @@ def add_place(request):
       return HttpResponse(json.dumps(response), mimetype="application/json")
   return HttpResponse(json.dumps({'error' : 'place not saved'}), mimetype="application/json")
 
-@csrf_exempt
+
 def get_yelp_request_url(request):
   data = request.POST
   business_id = data.get('business_id')
